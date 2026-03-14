@@ -21,9 +21,17 @@ Department
 -> Cybersecurity
 
 Adiministration
-AcademicAdim
+AcademicAdin
 Residence
 ```
+
+### 1. **Person** (Base Class)
+- **Purpose**: Base class for all individuals in the university
+-  **Attributes**: 
+  - `id`, `name`, `email`, `phone`
+- **Methods**:
+  - Getters/Setters for all attributes
+  - `displayInfo()` - Virtual method for displaying information
 
 
 
