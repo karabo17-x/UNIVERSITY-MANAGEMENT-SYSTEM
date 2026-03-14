@@ -32,6 +32,11 @@ Residence
 - **Methods**:
   - Getters/Setters for all attributes
   - `displayInfo()` - Virtual method for displaying information
+### 2. **Student** (Inherits from Person)
+- **Purpose**: Manages student information and enrollments
+- **Attributes**:
+
+     
 
 
 
