@@ -11,6 +11,19 @@ Person (Base Class)
 |___Faculty
 
 Department
+-> Computer Science
+-> Electronics
+-> Mathematics
+-> Physics
+-> Statistics
+-> Engineering
+-> Information Technology
+-> Cybersecurity
+
+Adiministration
+AcademicAdim
+Residence
+```
 
 
 
