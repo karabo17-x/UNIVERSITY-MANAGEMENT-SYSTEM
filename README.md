@@ -4,3 +4,13 @@ A comprehensive object-oriented C++ system for managing university operations in
 ## Project Structure
 
 ### Classes Overview
+
+```
+Person (Base Class)
+|___Student
+|___Faculty
+
+Department
+
+
+
