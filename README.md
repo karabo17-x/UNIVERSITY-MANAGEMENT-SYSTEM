@@ -40,6 +40,19 @@ Residence
   - `setGPA()`, `setResidenceBlock()`
   - Course management functions
   
+### 3. **Faculty** (Inherits from Person)
+- **Purpose**: Manages faculty member information
+- **Attributes**:
+  - `employeeId`, `department`, `designation`, `coursesTaught`, `salary`
+- **Methods**:
+  - `assignCourse()`, `removeCourse()`
+  - Department and salary management functions
+
+  
+  
+
+
+  
 
      
 
