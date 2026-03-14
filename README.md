@@ -21,7 +21,7 @@ Department
 -> Cybersecurity
 
 Adiministration
-AcademicAdin
+AcademicAdimin
 Residence
 ```
 
