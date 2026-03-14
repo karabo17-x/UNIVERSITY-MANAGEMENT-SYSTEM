@@ -34,7 +34,12 @@ Residence
   - `displayInfo()` - Virtual method for displaying information
 ### 2. **Student** (Inherits from Person)
 - **Purpose**: Manages student information and enrollments
-- **Attributes**:
+- **Attributes**: `rollNumber`, `major`, `gpa`, `enrolledCourses`, `residenceBlock`
+- **Methods**:
+  - `enrollCourse()`, `dropCourse()`
+  - `setGPA()`, `setResidenceBlock()`
+  - Course management functions
+  
 
      
 
