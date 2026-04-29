@@ -194,7 +194,7 @@ Student* Administration::interactiveStudentRegistration() {
     std::cout << "3. Mathematics\n";
     std::cout << "4. Physics\n";
     std::cout << "5. Statistics\n";
-    std::cout << "6. Engineering\n";
+    std::cout << "6. Engineering Field\n";
     std::cout << "7. Information Technology\n";
     std::cout << "8. Cybersecurity\n";
     std::cout << "Enter choice (1-8): ";
