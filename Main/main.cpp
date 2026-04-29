@@ -378,7 +378,7 @@ int main() {
                     case 3: dept2 = "Mathematics"; break;
                     case 4: dept2 = "Physics"; break;
                     case 5: dept2 = "Statistics"; break;
-                    case 6: dept2 = "Engineering"; break;
+                    case 6: dept2 = "Engineering Field"; break;
                     default:
                         cout << "\n Invalid choice!\n";
                         pause();
