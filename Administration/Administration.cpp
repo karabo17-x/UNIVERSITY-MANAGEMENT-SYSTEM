@@ -208,7 +208,7 @@ Student* Administration::interactiveStudentRegistration() {
         case 3: major = "Mathematics"; break;
         case 4: major = "Physics"; break;
         case 5: major = "Statistics"; break;
-        case 6: major = "Engineering"; break;
+        case 6: major = "Engineering Field"; break;
         case 7: major = "Information Technology"; break;
         case 8: major = "Cybersecurity"; break;
         default: 
