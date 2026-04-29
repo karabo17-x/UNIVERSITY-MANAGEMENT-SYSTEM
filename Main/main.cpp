@@ -364,7 +364,7 @@ int main() {
                 cout << "3. Mathematics\n";
                 cout << "4. Physics\n";
                 cout << "5. Statistics\n";
-                cout << "6. Engineering\n";
+                cout << "6. Engineering Field\n";
                 cout << "Enter choice (1-6): ";
                 
                 int deptChoice2;
