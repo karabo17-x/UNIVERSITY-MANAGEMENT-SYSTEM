@@ -8,6 +8,8 @@
 #include "../Administration/Administration.h"
 #include "../Academic/AcademicAdmin.h"
 #include "../Residence/Residence.h"
+#include "../Sports/Sports.h"
+#include "../Sports/SportsAffiliation.h"
 
 using namespace std;
 
@@ -42,10 +44,16 @@ void displayMainMenu() {
     cout << "\n--- RESIDENCE MANAGEMENT ---\n";
     cout << "15. Assign Residence Room\n";
     cout << "16. View Residence Occupancy\n";
+    cout << "\n--- SPORTS MANAGEMENT ---\n";
+    cout << "17. View All Available Sports\n";
+    cout << "18. Affiliate Student with Sport\n";
+    cout << "19. View Student Sports Profile\n";
+    cout << "20. View Sport Participants\n";
+    cout << "21. Remove Student from Sport\n";
     cout << "\n--- SYSTEM INFO ---\n";
-    cout << "17. View System Information\n";
-    cout << "18. Exit\n";
-    cout << "\nEnter your choice (1-18): ";
+    cout << "22. View System Information\n";
+    cout << "23. Exit\n";
+    cout << "\nEnter your choice (1-23): ";
 }
 
 // Function to pause execution
@@ -64,15 +72,16 @@ int main() {
     cout << "     Initializing System...                           \n";
     cout << "=====================================================\n";
     
-    // Initialize system components
     Administration admin("ADM001", "Mr. Karabo Mothapo");
     AcademicAdmin academicAdmin("AAM001", "Mrs. Petronella Mothapo");
     Residence hostelA("RES001", "Hostel A", "Block A", 10, "Dr. Phillip Mphahlele");
+    SportsAffiliation sportsAffiliation;
     
     cout << "\n System initialized successfully!\n";
     cout << " Administrator: " << admin.getAdminName() << "\n";
     cout << " Academic Admin: " << academicAdmin.getAdminName() << "\n";
     cout << " Residence: " << hostelA.getResidenceName() << " (Warden: Dr. Phillip Mphahlele)\n";
+    cout << " Sports Department: 12 Sports Initialized\n";
     
     // Main application loop
     bool running = true;
@@ -475,6 +484,113 @@ int main() {
             }
             
             case 17: {
+                // View All Available Sports
+                clearScreen();
+                cout << "\n===================================================\n";
+                cout << "     AVAILABLE SPORTS                             \n";
+                cout << "=====================================================\n";
+                sportsAffiliation.displayAllSports();
+                pause();
+                clearScreen();
+                break;
+            }
+            
+            case 18: {
+                // Affiliate Student with Sport
+                clearScreen();
+                cout << "\n===================================================\n";
+                cout << "     AFFILIATE STUDENT WITH SPORT                 \n";
+                cout << "=====================================================\n";
+                
+                sportsAffiliation.displayAllSports();
+                
+                string studentId, sportId;
+                cout << "\nEnter Student ID: ";
+                getline(cin, studentId);
+                
+                cout << "Enter Sport ID (e.g., S001 for Soccer): ";
+                getline(cin, sportId);
+                
+                Student* student = admin.searchStudent(studentId);
+                if (student != nullptr) {
+                    sportsAffiliation.affiliateStudentWithSport(studentId, sportId);
+                    cout << "\nAffiliation successful!\n";
+                } else {
+                    cout << "\nStudent not found!\n";
+                }
+                pause();
+                clearScreen();
+                break;
+            }
+            
+            case 19: {
+                // View Student Sports Profile
+                clearScreen();
+                cout << "\n===================================================\n";
+                cout << "     STUDENT SPORTS PROFILE                      \n";
+                cout << "=====================================================\n";
+                
+                string studentId;
+                cout << "\nEnter Student ID: ";
+                getline(cin, studentId);
+                
+                Student* student = admin.searchStudent(studentId);
+                if (student != nullptr) {
+                    sportsAffiliation.displayStudentSportInfo(studentId);
+                } else {
+                    cout << "\nStudent not found!\n";
+                }
+                pause();
+                clearScreen();
+                break;
+            }
+            
+            case 20: {
+                // View Sport Participants
+                clearScreen();
+                cout << "\n===================================================\n";
+                cout << "     SPORT PARTICIPANTS                          \n";
+                cout << "=====================================================\n";
+                
+                sportsAffiliation.displayAllSports();
+                
+                string sportId;
+                cout << "\nEnter Sport ID: ";
+                getline(cin, sportId);
+                
+                sportsAffiliation.displaySportParticipants(sportId);
+                pause();
+                clearScreen();
+                break;
+            }
+            
+            case 21: {
+                // Remove Student from Sport
+                clearScreen();
+                cout << "\n===================================================\n";
+                cout << "     REMOVE STUDENT FROM SPORT                   \n";
+                cout << "=====================================================\n";
+                
+                string studentId, sportId;
+                cout << "\nEnter Student ID: ";
+                getline(cin, studentId);
+                
+                cout << "Enter Sport ID: ";
+                getline(cin, sportId);
+                
+                Student* student = admin.searchStudent(studentId);
+                if (student != nullptr) {
+                    sportsAffiliation.removeStudentFromSport(studentId, sportId);
+                    cout << "\nStudent removed from sport!\n";
+                } else {
+                    cout << "\nStudent not found!\n";
+                }
+                pause();
+                clearScreen();
+                break;
+            }
+            
+            case 22: {
                 // View System Information
                 clearScreen();
                 cout << "\n===================================================\n";
@@ -488,7 +604,7 @@ int main() {
                 break;
             }
             
-            case 18: {
+            case 23: {
                 // Exit
                 clearScreen();
                 cout << "\n===================================================\n";
@@ -500,7 +616,7 @@ int main() {
             }
             
             default: {
-                cout << "\n Invalid choice! Please enter a number between 1 and 18.\n";
+                cout << "\n Invalid choice! Please enter a number between 1 and 23.\n";
                 pause();
                 clearScreen();
                 break;
