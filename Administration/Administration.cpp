@@ -194,7 +194,7 @@ Student* Administration::interactiveStudentRegistration() {
     std::cout << "3. Mathematics\n";
     std::cout << "4. Physics\n";
     std::cout << "5. Statistics\n";
-    std::cout << "6. Engineering\n";
+    std::cout << "6. Engineering Field\n";
     std::cout << "7. Information Technology\n";
     std::cout << "8. Cybersecurity\n";
     std::cout << "Enter choice (1-8): ";
@@ -208,7 +208,7 @@ Student* Administration::interactiveStudentRegistration() {
         case 3: major = "Mathematics"; break;
         case 4: major = "Physics"; break;
         case 5: major = "Statistics"; break;
-        case 6: major = "Engineering"; break;
+        case 6: major = "Engineering Field"; break;
         case 7: major = "Information Technology"; break;
         case 8: major = "Cybersecurity"; break;
         default: 
@@ -398,7 +398,7 @@ Faculty* Administration::interactiveAddFaculty() {
     std::cout << "3. Mathematics\n";
     std::cout << "4. Physics\n";
     std::cout << "5. Statistics\n";
-    std::cout << "6. Engineering\n";
+    std::cout << "6. Engineering Field\n";
     std::cout << "Enter choice (1-6): ";
     
     std::string deptChoice;
@@ -410,7 +410,7 @@ Faculty* Administration::interactiveAddFaculty() {
         case 3: department = "Mathematics"; break;
         case 4: department = "Physics"; break;
         case 5: department = "Statistics"; break;
-        case 6: department = "Engineering"; break;
+        case 6: department = "Engineering Field"; break;
         default:
             std::cout << " Invalid choice!\n";
             return nullptr;
