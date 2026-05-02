@@ -283,7 +283,7 @@ int main() {
                 cout << "3. Mathematics\n";
                 cout << "4. Physics\n";
                 cout << "5. Statistics\n";
-                cout << "6. Engineering\n";
+                cout << "6. Engineering Field\n";
                 cout << "Enter choice (1-6): ";
                 
                 int deptChoice;
@@ -297,7 +297,7 @@ int main() {
                     case 3: dept = "Mathematics"; break;
                     case 4: dept = "Physics"; break;
                     case 5: dept = "Statistics"; break;
-                    case 6: dept = "Engineering"; break;
+                    case 6: dept = "Engineering Field"; break;
                     default:
                         cout << "\n Invalid choice!\n";
                         pause();
@@ -373,7 +373,7 @@ int main() {
                 cout << "3. Mathematics\n";
                 cout << "4. Physics\n";
                 cout << "5. Statistics\n";
-                cout << "6. Engineering\n";
+                cout << "6. Engineering Field\n";
                 cout << "Enter choice (1-6): ";
                 
                 int deptChoice2;
@@ -387,7 +387,7 @@ int main() {
                     case 3: dept2 = "Mathematics"; break;
                     case 4: dept2 = "Physics"; break;
                     case 5: dept2 = "Statistics"; break;
-                    case 6: dept2 = "Engineering"; break;
+                    case 6: dept2 = "Engineering Field"; break;
                     default:
                         cout << "\n Invalid choice!\n";
                         pause();
