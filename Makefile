@@ -10,6 +10,8 @@ DEPARTMENT_SRC = Department/Department.cpp
 ADMINISTRATION_SRC = Administration/Administration.cpp
 ACADEMIC_SRC = Academic/AcademicAdmin.cpp
 RESIDENCE_SRC = Residence/Residence.cpp
+SPORTS_SRC = Sports/Sports.cpp
+SPORTS_AFFILIATION_SRC = Sports/SportsAffiliation.cpp
 MAIN_SRC = Main/main.cpp
 
 PERSON_OBJ = Person/Person.o
@@ -19,9 +21,11 @@ DEPARTMENT_OBJ = Department/Department.o
 ADMINISTRATION_OBJ = Administration/Administration.o
 ACADEMIC_OBJ = Academic/AcademicAdmin.o
 RESIDENCE_OBJ = Residence/Residence.o
+SPORTS_OBJ = Sports/Sports.o
+SPORTS_AFFILIATION_OBJ = Sports/SportsAffiliation.o
 MAIN_OBJ = Main/main.o
 
-OBJECTS = $(PERSON_OBJ) $(STUDENT_OBJ) $(FACULTY_OBJ) $(DEPARTMENT_OBJ) $(ADMINISTRATION_OBJ) $(ACADEMIC_OBJ) $(RESIDENCE_OBJ) $(MAIN_OBJ)
+OBJECTS = $(PERSON_OBJ) $(STUDENT_OBJ) $(FACULTY_OBJ) $(DEPARTMENT_OBJ) $(ADMINISTRATION_OBJ) $(ACADEMIC_OBJ) $(RESIDENCE_OBJ) $(SPORTS_OBJ) $(SPORTS_AFFILIATION_OBJ) $(MAIN_OBJ)
 
 # Default target
 all: $(TARGET)
@@ -60,7 +64,15 @@ Residence/Residence.o: Residence/Residence.cpp Residence/Residence.h Student/Stu
 	$(CXX) $(CXXFLAGS) -c Residence/Residence.cpp -o Residence/Residence.o
 	@echo "Compiled Residence/Residence.cpp"
 
-Main/main.o: Main/main.cpp Person/Person.h Student/Student.h Faculty/Faculty.h Department/Department.h Administration/Administration.h Academic/AcademicAdmin.h Residence/Residence.h
+Sports/Sports.o: Sports/Sports.cpp Sports/Sports.h
+	$(CXX) $(CXXFLAGS) -c Sports/Sports.cpp -o Sports/Sports.o
+	@echo "Compiled Sports/Sports.cpp"
+
+Sports/SportsAffiliation.o: Sports/SportsAffiliation.cpp Sports/SportsAffiliation.h Sports/Sports.h
+	$(CXX) $(CXXFLAGS) -c Sports/SportsAffiliation.cpp -o Sports/SportsAffiliation.o
+	@echo "Compiled Sports/SportsAffiliation.cpp"
+
+Main/main.o: Main/main.cpp Person/Person.h Student/Student.h Faculty/Faculty.h Department/Department.h Administration/Administration.h Academic/AcademicAdmin.h Residence/Residence.h Sports/Sports.h Sports/SportsAffiliation.h
 	$(CXX) $(CXXFLAGS) -c Main/main.cpp -o Main/main.o
 	@echo "Compiled Main/main.cpp"
 

@@ -1,5 +1,5 @@
 # University Management System - C++ Project
-A comprehensive object-oriented C++ system for managing university operations including student registration, faculty management, academic administration, and student residence management.
+A comprehensive object-oriented C++ system for managing university operations including student registration, faculty management, academic administration, student residence management, and student sports activities.
 
 
 ## Project Structure
@@ -21,9 +21,24 @@ Department (Base Class)
 ├── InformationTechnology
 └── Cybersecurity
 
+Sports (Base Class)
+├── Soccer
+├── Tennis
+├── Rugby
+├── Volleyball
+├── Karate
+├── Swimming
+├── Gymnastics
+├── Jujitsu
+├── Boxing
+├── Basketball
+├── Cricket
+└── Chess
+
 Administration
 AcademicAdmin
 Residence
+SportsAffiliation
 ```
 
 ## Class Descriptions
@@ -98,6 +113,41 @@ Each subclass inherits from Department and can be customized with specific featu
 -> **Methods**:
   -> `assignRoom()`, `vacateRoom()`
   -> `getRoomOccupant()`, `displayRoomOccupancy()`
+
+### 9. **Sports** (Base Class)
+-> **Purpose**: Manages student sports activities and affiliations
+-> **Attributes**:
+  -> `sportId`, `sportName`, `coordinator`, `affiliatedStudents`, `affiliationFee`
+-> **Methods**:
+  -> `addStudent()`, `removeStudent()`
+  -> `isStudentAffiliated()`, `getAffiliatedStudents()`
+  -> Getters/Setters for sport properties
+
+### 10. **Sports Subclasses**
+Specific implementations for each sport:
+-> **Soccer** - Fee: R150.00
+-> **Tennis** - Fee: R120.00
+-> **Rugby** - Fee: R140.00
+-> **Volleyball** - Fee: R100.00
+-> **Karate** - Fee: R175.00
+-> **Swimming** - Fee: R130.00
+-> **Gymnastics** - Fee: R160.00
+-> **Jujitsu** - Fee: R180.00
+-> **Boxing** - Fee: R165.00
+-> **Basketball** - Fee: R135.00
+-> **Cricket** - Fee: R145.00
+-> **Chess** - Fee: R110.00
+
+Each sport subclass inherits from Sports and represents a student activity with unique affiliation fees.
+
+### 11. **SportsAffiliation**
+-> **Purpose**: Manages student sports affiliations and payments
+-> **Attributes**:
+  -> `allSports` (map of sports), `studentAffiliations`, `studentPayments`
+-> **Methods**:
+  -> `affiliateStudentWithSport()`, `removeStudentFromSport()`
+  -> `getStudentAffiliations()`, `recordPayment()`
+  -> `displayAllSports()`, `displayStudentSportInfo()`, `displaySportParticipants()`
 
 ## Building the Project
 
