@@ -39,3 +39,7 @@
 
 # debug information files
 *.dwo
+university_system
+*.o
+*.exe
+test_menu.txt
