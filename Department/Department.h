@@ -4,6 +4,10 @@
 #include <string>
 #include <vector>
 #include "../Faculty/Faculty.h"
+#include "../Exam/ExamSchedule.h"
+
+// Forward declaration
+class ExamSchedule;
 
 // Base class for all departments
 class Department {
@@ -13,6 +17,7 @@ protected:
     std::string headOfDepartment;
     std::vector<Faculty*> facultyMembers;
     int totalStudents;
+    ExamSchedule* examSchedule;
 
 public:
     Department(const std::string& deptId, const std::string& deptName, const std::string& head);
@@ -24,6 +29,7 @@ public:
     std::string getHeadOfDepartment() const;
     int getTotalStudents() const;
     std::vector<Faculty*> getFacultyMembers() const;
+    ExamSchedule* getExamSchedule() const;
 
     // Setters
     void setHeadOfDepartment(const std::string& head);
@@ -32,6 +38,10 @@ public:
     // Faculty management
     void addFaculty(Faculty* faculty);
     void removeFaculty(const std::string& employeeId);
+
+    // Exam schedule management
+    void initializeExamSchedule(const std::string& semester);
+    void displayExamSchedule() const;
 
     // Virtual method for department-specific information
     virtual void displayDepartmentInfo() const;
