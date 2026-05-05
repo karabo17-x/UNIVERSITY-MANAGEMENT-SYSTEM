@@ -10,6 +10,9 @@
 #include "../Residence/Residence.h"
 #include "../Sports/Sports.h"
 #include "../Sports/SportsAffiliation.h"
+#include "../Exam/Exam.h"
+#include "../Exam/ExamSection.h"
+#include "../Exam/ExamSchedule.h"
 
 using namespace std;
 
@@ -50,10 +53,17 @@ void displayMainMenu() {
     cout << "19. View Student Sports Profile\n";
     cout << "20. View Sport Participants\n";
     cout << "21. Remove Student from Sport\n";
+    cout << "\n--- EXAM MANAGEMENT ---\n";
+    cout << "22. Initialize Department Exam Schedule\n";
+    cout << "23. Create Exam Section\n";
+    cout << "24. Add Exam to Section\n";
+    cout << "25. Enroll Student in Exam Section\n";
+    cout << "26. View Department Exam Schedule\n";
+    cout << "27. View Exam Section Details\n";
     cout << "\n--- SYSTEM INFO ---\n";
-    cout << "22. View System Information\n";
-    cout << "23. Exit\n";
-    cout << "\nEnter your choice (1-23): ";
+    cout << "28. View System Information\n";
+    cout << "29. Exit\n";
+    cout << "\nEnter your choice (1-29): ";
 }
 
 // Function to pause execution
@@ -77,11 +87,23 @@ int main() {
     Residence hostelA("RES001", "Hostel A", "Block A", 10, "Dr. Phillip Mphahlele");
     SportsAffiliation sportsAffiliation;
     
+    // Initialize Departments
+    vector<Department*> departments;
+    departments.push_back(new ComputerScience("DEPT001", "Dr. Ahmed Hassan"));
+    departments.push_back(new Electronics("DEPT002", "Prof. Sarah Johnson"));
+    departments.push_back(new Mathematics("DEPT003", "Dr. Michael Smith"));
+    departments.push_back(new Physics("DEPT004", "Dr. Emily Brown"));
+    departments.push_back(new Statistics("DEPT005", "Prof. James Wilson"));
+    departments.push_back(new Engineering("DEPT006", "Dr. Robert Davis"));
+    departments.push_back(new InformationTechnology("DEPT007", "Dr. Lisa Anderson"));
+    departments.push_back(new Cybersecurity("DEPT008", "Prof. David Martinez"));
+    
     cout << "\n System initialized successfully!\n";
     cout << " Administrator: " << admin.getAdminName() << "\n";
     cout << " Academic Admin: " << academicAdmin.getAdminName() << "\n";
     cout << " Residence: " << hostelA.getResidenceName() << " (Warden: Dr. Phillip Mphahlele)\n";
     cout << " Sports Department: 12 Sports Initialized\n";
+    cout << " Departments: 8 Academic Departments Initialized\n";
     
     // Main application loop
     bool running = true;
@@ -591,6 +613,289 @@ int main() {
             }
             
             case 22: {
+                // Initialize Department Exam Schedule
+                clearScreen();
+                cout << "\n===================================================\n";
+                cout << "     INITIALIZE DEPARTMENT EXAM SCHEDULE         \n";
+                cout << "=====================================================\n";
+                
+                cout << "\nSelect Department:\n";
+                for (int i = 0; i < departments.size(); i++) {
+                    cout << (i + 1) << ". " << departments[i]->getDepartmentName() << "\n";
+                }
+                
+                int deptChoice;
+                cout << "\nEnter department number: ";
+                cin >> deptChoice;
+                cin.ignore();
+                
+                if (deptChoice > 0 && deptChoice <= departments.size()) {
+                    string semester;
+                    cout << "Enter semester: ";
+                    getline(cin, semester);
+                    
+                    departments[deptChoice - 1]->initializeExamSchedule(semester);
+                    cout << "\nExam schedule initialized successfully!\n";
+                } else {
+                    cout << "\nInvalid choice!\n";
+                }
+                pause();
+                clearScreen();
+                break;
+            }
+            
+            case 23: {
+                // Create Exam Section
+                clearScreen();
+                cout << "\n===================================================\n";
+                cout << "     CREATE EXAM SECTION                          \n";
+                cout << "=====================================================\n";
+                
+                cout << "\nSelect Department:\n";
+                for (int i = 0; i < departments.size(); i++) {
+                    cout << (i + 1) << ". " << departments[i]->getDepartmentName() << "\n";
+                }
+                
+                int deptChoice;
+                cout << "\nEnter department number: ";
+                cin >> deptChoice;
+                cin.ignore();
+                
+                if (deptChoice > 0 && deptChoice <= departments.size()) {
+                    ExamSchedule* schedule = departments[deptChoice - 1]->getExamSchedule();
+                    if (schedule != nullptr) {
+                        string sectionId, sectionName, invigilator, roomNumber;
+                        int capacity;
+                        
+                        cout << "Enter Section ID: ";
+                        getline(cin, sectionId);
+                        
+                        cout << "Enter Section Name: ";
+                        getline(cin, sectionName);
+                        
+                        cout << "Enter Invigilator Name: ";
+                        getline(cin, invigilator);
+                        
+                        cout << "Enter Room Number: ";
+                        getline(cin, roomNumber);
+                        
+                        cout << "Enter Section Capacity: ";
+                        cin >> capacity;
+                        
+                        ExamSection* newSection = new ExamSection(sectionId, sectionName, 
+                                                                  departments[deptChoice - 1]->getDepartmentName(),
+                                                                  invigilator, capacity, roomNumber);
+                        schedule->addExamSection(newSection);
+                    } else {
+                        cout << "\nNo exam schedule found for this department. Initialize first!\n";
+                    }
+                } else {
+                    cout << "\nInvalid choice!\n";
+                }
+                pause();
+                clearScreen();
+                break;
+            }
+            
+            case 24: {
+                // Add Exam to Section
+                clearScreen();
+                cout << "\n===================================================\n";
+                cout << "     ADD EXAM TO SECTION                         \n";
+                cout << "=====================================================\n";
+                
+                cout << "\nSelect Department:\n";
+                for (int i = 0; i < departments.size(); i++) {
+                    cout << (i + 1) << ". " << departments[i]->getDepartmentName() << "\n";
+                }
+                
+                int deptChoice;
+                cout << "\nEnter department number: ";
+                cin >> deptChoice;
+                cin.ignore();
+                
+                if (deptChoice > 0 && deptChoice <= departments.size()) {
+                    ExamSchedule* schedule = departments[deptChoice - 1]->getExamSchedule();
+                    if (schedule != nullptr && schedule->getTotalSections() > 0) {
+                        string sectionId;
+                        cout << "\nEnter Section ID: ";
+                        getline(cin, sectionId);
+                        
+                        ExamSection* section = schedule->getExamSectionById(sectionId);
+                        if (section != nullptr) {
+                            string examId, examName, examType, date, time, venue;
+                            int duration, maxMarks;
+                            
+                            cout << "Enter Exam ID: ";
+                            getline(cin, examId);
+                            
+                            cout << "Enter Exam Name: ";
+                            getline(cin, examName);
+                            
+                            cout << "Enter Exam Type (Midterm/Final/Quiz/Assignment): ";
+                            getline(cin, examType);
+                            
+                            cout << "Enter Date (DD/MM/YYYY): ";
+                            getline(cin, date);
+                            
+                            cout << "Enter Time (HH:MM): ";
+                            getline(cin, time);
+                            
+                            cout << "Enter Duration (minutes): ";
+                            cin >> duration;
+                            
+                            cout << "Enter Max Marks: ";
+                            cin >> maxMarks;
+                            cin.ignore();
+                            
+                            cout << "Enter Venue: ";
+                            getline(cin, venue);
+                            
+                            Exam* newExam = nullptr;
+                            if (examType == "Midterm" || examType == "midterm") {
+                                newExam = new Midterm(examId, examName, departments[deptChoice - 1]->getDepartmentName(),
+                                                     date, time, duration, maxMarks, venue);
+                            } else if (examType == "Final" || examType == "final") {
+                                newExam = new Final(examId, examName, departments[deptChoice - 1]->getDepartmentName(),
+                                                   date, time, duration, maxMarks, venue);
+                            } else if (examType == "Quiz" || examType == "quiz") {
+                                newExam = new Quiz(examId, examName, departments[deptChoice - 1]->getDepartmentName(),
+                                                  date, time, duration, maxMarks, venue);
+                            } else if (examType == "Assignment" || examType == "assignment") {
+                                newExam = new Assignment(examId, examName, departments[deptChoice - 1]->getDepartmentName(),
+                                                        date, time, duration, maxMarks, venue);
+                            } else {
+                                newExam = new Exam(examId, examName, examType, departments[deptChoice - 1]->getDepartmentName(),
+                                                  date, time, duration, maxMarks, venue);
+                            }
+                            
+                            section->addExam(newExam);
+                        } else {
+                            cout << "\nSection not found!\n";
+                        }
+                    } else {
+                        cout << "\nNo exam schedule or sections found for this department!\n";
+                    }
+                } else {
+                    cout << "\nInvalid choice!\n";
+                }
+                pause();
+                clearScreen();
+                break;
+            }
+            
+            case 25: {
+                // Enroll Student in Exam Section
+                clearScreen();
+                cout << "\n===================================================\n";
+                cout << "     ENROLL STUDENT IN EXAM SECTION             \n";
+                cout << "=====================================================\n";
+                
+                cout << "\nSelect Department:\n";
+                for (int i = 0; i < departments.size(); i++) {
+                    cout << (i + 1) << ". " << departments[i]->getDepartmentName() << "\n";
+                }
+                
+                int deptChoice;
+                cout << "\nEnter department number: ";
+                cin >> deptChoice;
+                cin.ignore();
+                
+                if (deptChoice > 0 && deptChoice <= departments.size()) {
+                    ExamSchedule* schedule = departments[deptChoice - 1]->getExamSchedule();
+                    if (schedule != nullptr && schedule->getTotalSections() > 0) {
+                        string sectionId, studentId;
+                        cout << "\nEnter Section ID: ";
+                        getline(cin, sectionId);
+                        
+                        cout << "Enter Student ID: ";
+                        getline(cin, studentId);
+                        
+                        ExamSection* section = schedule->getExamSectionById(sectionId);
+                        if (section != nullptr) {
+                            Student* student = admin.searchStudent(studentId);
+                            if (student != nullptr) {
+                                section->enrollStudent(studentId);
+                            } else {
+                                cout << "\nStudent not found!\n";
+                            }
+                        } else {
+                            cout << "\nSection not found!\n";
+                        }
+                    } else {
+                        cout << "\nNo exam schedule or sections found for this department!\n";
+                    }
+                } else {
+                    cout << "\nInvalid choice!\n";
+                }
+                pause();
+                clearScreen();
+                break;
+            }
+            
+            case 26: {
+                // View Department Exam Schedule
+                clearScreen();
+                cout << "\n===================================================\n";
+                cout << "     DEPARTMENT EXAM SCHEDULE                    \n";
+                cout << "=====================================================\n";
+                
+                cout << "\nSelect Department:\n";
+                for (int i = 0; i < departments.size(); i++) {
+                    cout << (i + 1) << ". " << departments[i]->getDepartmentName() << "\n";
+                }
+                
+                int deptChoice;
+                cout << "\nEnter department number: ";
+                cin >> deptChoice;
+                cin.ignore();
+                
+                if (deptChoice > 0 && deptChoice <= departments.size()) {
+                    departments[deptChoice - 1]->displayExamSchedule();
+                } else {
+                    cout << "\nInvalid choice!\n";
+                }
+                pause();
+                clearScreen();
+                break;
+            }
+            
+            case 27: {
+                // View Exam Section Details
+                clearScreen();
+                cout << "\n===================================================\n";
+                cout << "     EXAM SECTION DETAILS                        \n";
+                cout << "=====================================================\n";
+                
+                cout << "\nSelect Department:\n";
+                for (int i = 0; i < departments.size(); i++) {
+                    cout << (i + 1) << ". " << departments[i]->getDepartmentName() << "\n";
+                }
+                
+                int deptChoice;
+                cout << "\nEnter department number: ";
+                cin >> deptChoice;
+                cin.ignore();
+                
+                if (deptChoice > 0 && deptChoice <= departments.size()) {
+                    ExamSchedule* schedule = departments[deptChoice - 1]->getExamSchedule();
+                    if (schedule != nullptr) {
+                        string sectionId;
+                        cout << "\nEnter Section ID: ";
+                        getline(cin, sectionId);
+                        schedule->displaySectionDetails(sectionId);
+                    } else {
+                        cout << "\nNo exam schedule found for this department!\n";
+                    }
+                } else {
+                    cout << "\nInvalid choice!\n";
+                }
+                pause();
+                clearScreen();
+                break;
+            }
+            
+            case 28: {
                 // View System Information
                 clearScreen();
                 cout << "\n===================================================\n";
@@ -604,7 +909,7 @@ int main() {
                 break;
             }
             
-            case 23: {
+            case 29: {
                 // Exit
                 clearScreen();
                 cout << "\n===================================================\n";
@@ -616,13 +921,19 @@ int main() {
             }
             
             default: {
-                cout << "\n Invalid choice! Please enter a number between 1 and 23.\n";
+                cout << "\n Invalid choice! Please enter a number between 1 and 29.\n";
                 pause();
                 clearScreen();
                 break;
             }
         }
     }
+    
+    // Cleanup departments
+    for (auto dept : departments) {
+        delete dept;
+    }
+    departments.clear();
     
     return 0;
 }
