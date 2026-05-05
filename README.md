@@ -35,6 +35,15 @@ Sports (Base Class)
 ├── Cricket
 └── Chess
 
+Exam (Base Class)
+├── Midterm
+├── Final
+├── Quiz
+└── Assignment
+
+ExamSection
+ExamSchedule
+
 Administration
 AcademicAdmin
 Residence
@@ -148,6 +157,41 @@ Each sport subclass inherits from Sports and represents a student activity with 
   -> `affiliateStudentWithSport()`, `removeStudentFromSport()`
   -> `getStudentAffiliations()`, `recordPayment()`
   -> `displayAllSports()`, `displayStudentSportInfo()`, `displaySportParticipants()`
+
+### 12. **Exam** (Base Class)
+-> **Purpose**: Manages examination records and schedules
+-> **Attributes**:
+  -> `examId`, `examName`, `examType`, `department`, `date`, `time`, `duration`, `maxMarks`, `venue`
+-> **Methods**:
+  -> Getters/Setters for all exam attributes
+  -> `displayExamInfo()` - Virtual method for displaying exam details
+
+### 13. **Exam Subclasses**
+Specific implementations for each exam type:
+-> **Midterm** - Mid-semester examinations
+-> **Final** - End-semester final examinations
+-> **Quiz** - Quick assessments
+-> **Assignment** - Coursework assignments
+
+Each exam type inherits from Exam and represents a specific assessment category.
+
+### 14. **ExamSection**
+-> **Purpose**: Manages exam sections within departments
+-> **Attributes**:
+  -> `sectionId`, `sectionName`, `department`, `invigilator`, `capacity`, `enrolledStudents`, `exams`, `roomNumber`, `isActive`
+-> **Methods**:
+  -> `enrollStudent()`, `removeStudent()`, `isStudentEnrolled()`
+  -> `addExam()`, `removeExam()`, `getExamById()`
+  -> `displaySectionInfo()`, `displayExamSchedule()`, `displayEnrolledStudents()`
+
+### 15. **ExamSchedule**
+-> **Purpose**: Manages all exam sections for a department in a given semester
+-> **Attributes**:
+  -> `scheduleId`, `department`, `semester`, `examSections`, `startDate`, `endDate`, `isPublished`
+-> **Methods**:
+  -> `addExamSection()`, `removeExamSection()`, `getExamSectionById()`
+  -> `getTotalSections()`, `getTotalEnrolledStudents()`
+  -> `displayScheduleInfo()`, `displayAllSections()`, `displaySectionDetails()`
 
 ## Building the Project
 
