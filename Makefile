@@ -12,6 +12,9 @@ ACADEMIC_SRC = Academic/AcademicAdmin.cpp
 RESIDENCE_SRC = Residence/Residence.cpp
 SPORTS_SRC = Sports/Sports.cpp
 SPORTS_AFFILIATION_SRC = Sports/SportsAffiliation.cpp
+EXAM_SRC = Exam/Exam.cpp
+EXAM_SECTION_SRC = Exam/ExamSection.cpp
+EXAM_SCHEDULE_SRC = Exam/ExamSchedule.cpp
 MAIN_SRC = Main/main.cpp
 
 PERSON_OBJ = Person/Person.o
@@ -23,9 +26,12 @@ ACADEMIC_OBJ = Academic/AcademicAdmin.o
 RESIDENCE_OBJ = Residence/Residence.o
 SPORTS_OBJ = Sports/Sports.o
 SPORTS_AFFILIATION_OBJ = Sports/SportsAffiliation.o
+EXAM_OBJ = Exam/Exam.o
+EXAM_SECTION_OBJ = Exam/ExamSection.o
+EXAM_SCHEDULE_OBJ = Exam/ExamSchedule.o
 MAIN_OBJ = Main/main.o
 
-OBJECTS = $(PERSON_OBJ) $(STUDENT_OBJ) $(FACULTY_OBJ) $(DEPARTMENT_OBJ) $(ADMINISTRATION_OBJ) $(ACADEMIC_OBJ) $(RESIDENCE_OBJ) $(SPORTS_OBJ) $(SPORTS_AFFILIATION_OBJ) $(MAIN_OBJ)
+OBJECTS = $(PERSON_OBJ) $(STUDENT_OBJ) $(FACULTY_OBJ) $(DEPARTMENT_OBJ) $(ADMINISTRATION_OBJ) $(ACADEMIC_OBJ) $(RESIDENCE_OBJ) $(SPORTS_OBJ) $(SPORTS_AFFILIATION_OBJ) $(EXAM_OBJ) $(EXAM_SECTION_OBJ) $(EXAM_SCHEDULE_OBJ) $(MAIN_OBJ)
 
 # Default target
 all: $(TARGET)
@@ -72,7 +78,19 @@ Sports/SportsAffiliation.o: Sports/SportsAffiliation.cpp Sports/SportsAffiliatio
 	$(CXX) $(CXXFLAGS) -c Sports/SportsAffiliation.cpp -o Sports/SportsAffiliation.o
 	@echo "Compiled Sports/SportsAffiliation.cpp"
 
-Main/main.o: Main/main.cpp Person/Person.h Student/Student.h Faculty/Faculty.h Department/Department.h Administration/Administration.h Academic/AcademicAdmin.h Residence/Residence.h Sports/Sports.h Sports/SportsAffiliation.h
+Exam/Exam.o: Exam/Exam.cpp Exam/Exam.h
+	$(CXX) $(CXXFLAGS) -c Exam/Exam.cpp -o Exam/Exam.o
+	@echo "Compiled Exam/Exam.cpp"
+
+Exam/ExamSection.o: Exam/ExamSection.cpp Exam/ExamSection.h Exam/Exam.h
+	$(CXX) $(CXXFLAGS) -c Exam/ExamSection.cpp -o Exam/ExamSection.o
+	@echo "Compiled Exam/ExamSection.cpp"
+
+Exam/ExamSchedule.o: Exam/ExamSchedule.cpp Exam/ExamSchedule.h Exam/ExamSection.h
+	$(CXX) $(CXXFLAGS) -c Exam/ExamSchedule.cpp -o Exam/ExamSchedule.o
+	@echo "Compiled Exam/ExamSchedule.cpp"
+
+Main/main.o: Main/main.cpp Person/Person.h Student/Student.h Faculty/Faculty.h Department/Department.h Administration/Administration.h Academic/AcademicAdmin.h Residence/Residence.h Sports/Sports.h Sports/SportsAffiliation.h Exam/Exam.h Exam/ExamSection.h Exam/ExamSchedule.h
 	$(CXX) $(CXXFLAGS) -c Main/main.cpp -o Main/main.o
 	@echo "Compiled Main/main.cpp"
 

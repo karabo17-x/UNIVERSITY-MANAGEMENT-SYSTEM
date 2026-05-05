@@ -14,6 +14,9 @@ set(SOURCES
     Residence.cpp
     Sports/Sports.cpp
     Sports/SportsAffiliation.cpp
+    Exam/Exam.cpp
+    Exam/ExamSection.cpp
+    Exam/ExamSchedule.cpp
     main.cpp
 )
 
