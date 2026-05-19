@@ -1,6 +1,64 @@
-# University Management System - C++ Project
-A comprehensive object-oriented C++ system for managing university operations including student registration, faculty management, academic administration, student residence management, and student sports activities.
+# University Management System - C++ Project with Qt6 GUI
+A comprehensive object-oriented C++ system for managing university operations including student registration, faculty management, academic administration, student residence management, and student sports activities, with a professional Qt6 graphical user interface.
 
+## Overview
+
+The University Management System is a feature-complete Qt6 application that provides an intuitive desktop interface for managing all aspects of university operations. The system includes:
+
+- **Student Management**: Registration, search, deregistration, and profile management
+- **Academic Management**: Mark assignment and tracking
+- **Faculty Management**: Faculty administration and course assignments
+- **Department Administration**: Department organization and payroll management
+- **Residence Management**: Student housing assignments and occupancy tracking
+- **Sports Management**: Student sports affiliation and participation tracking
+- **Examination Management**: Exam scheduling and section enrollment
+
+## Technology Stack
+
+- **Language**: C++17
+- **GUI Framework**: Qt6 (QtCore, QtGui, QtWidgets)
+- **Build Systems**: CMake (primary) and Makefile (secondary)
+- **Operating System**: Linux/Unix
+
+## Building the Project
+
+### Prerequisites
+
+```bash
+# Install Qt6 development libraries
+sudo apt-get install qt6-base-dev qt6-tools-dev
+
+# Install CMake
+sudo apt-get install cmake make g++
+```
+
+### Build Instructions
+
+**Using CMake (Recommended)**:
+```bash
+mkdir build
+cd build
+cmake ..
+make
+```
+
+**Using Make**:
+```bash
+make clean
+make
+```
+
+### Running the Application
+
+After building successfully:
+```bash
+./build/university_system
+```
+
+Or if using Makefile:
+```bash
+./university_system
+```
 
 ## Project Structure
 
@@ -48,6 +106,11 @@ Administration
 AcademicAdmin
 Residence
 SportsAffiliation
+
+Qt6 Dialog Classes:
+├── StudentRegistrationDialog
+├── StudentSearchDialog
+└── GenericListDialog
 ```
 
 ## Class Descriptions
@@ -294,43 +357,236 @@ hostelA.assignRoom(1, &student1);
 
 ## Key Features
 
- **Object-Oriented Design**: Uses inheritance and polymorphism  
- **Encapsulation**: Private attributes with public getters/setters  
- **Multiple Classes**: 8 different department types  
- **Course Management**: Students can enroll/drop courses  
- **Marks & Grades**: Automatic grade calculation system  
- **Residence Management**: Room assignment and tracking  
- **Search Functionality**: Search for students by ID  
- **Display Functions**: Comprehensive information display methods  
+**Qt6 Graphical User Interface**:
+ - Professional welcome screen with system introduction
+ - Organized main menu with grid-based navigation (29 menu options)
+ - Dialog-based data input with validation
+ - Real-time list display of students, faculty, and system data
+ - Functional transitions between screens using QStackedWidget
+ - Dark-themed styling with consistent color scheme
 
-## Future Enhancements
+**Object-Oriented Design**: Uses inheritance and polymorphism  
+**Encapsulation**: Private attributes with public getters/setters  
+**Multiple Classes**: 8 different department types, 12 sports types, 4 exam types  
+**Course Management**: Students can enroll/drop courses  
+**Marks & Grades**: Automatic grade calculation system  
+**Residence Management**: Room assignment and tracking with occupancy management
+**Sports Management**: Complete student sports affiliation and payment tracking
+**Search Functionality**: Search for students by ID with detailed profile display
+**Dialog-Based Operations**:
+ - Student registration with input validation
+ - Student search by ID
+ - Generic list display for any data (students, faculty, sports, etc.)
+ - Add/remove operations through interactive dialogs
 
--> Database integration for persistent storage
--> File I/O for importing/exporting student data
--> Advanced reporting and analytics
--> Notification system for grades/schedules
--> Transcript generation
--> Fee management system
--> Library management integration
--> Attendance tracking
+## User Interface Workflow
+
+1. **Welcome Screen**: Shows system overview and provides entry point
+2. **Main Menu**: Grid-based navigation with 29 menu options organized by category
+3. **Dialogs**: 
+   - StudentRegistrationDialog for adding new students
+   - StudentSearchDialog for viewing student details
+   - GenericListDialog for displaying lists of data
+4. **Back Navigation**: Quick return to previous screen or welcome screen
+
+## Functional Menu Options
+
+**Student Management (4 options)**:
+  - Register New Student (with validation)
+  - View All Students (list display)
+  - Search Student by ID (detailed profile)
+  - Deregister Student
+
+**Academic Management (2 options)**:
+  - Assign Marks to Student
+  - View Student Marks
+
+**Faculty Management (5 options)**:
+  - Add Faculty Member
+  - View All Faculty Members
+  - View Faculty by Department
+  - Assign Course to Faculty
+  - View Course-Faculty Mapping
+
+**Department Management (3 options)**:
+  - View All Departments
+  - View Faculty by Department
+  - View Payroll Information
+
+**Residence Management (2 options)**:
+  - Assign Residence Room
+  - View Residence Occupancy
+
+**Sports Management (5 options)**:
+  - View All Available Sports
+  - Affiliate Student with Sport
+  - View Student Sports Profile
+  - View Sport Participants
+  - Remove Student from Sport
+
+**Exam Management (6 options)**:
+  - Initialize Department Exam Schedule
+  - Create Exam Section
+  - Add Exam to Section
+  - Enroll Student in Exam Section
+  - View Department Exam Schedule
+  - View Exam Section Details
+
+**System Info (1 option)**:
+  - View System Information
+
+## Building the Project
+
+### Option 1: Using CMake (Recommended)
+
+```bash
+# Create build directory
+mkdir build
+cd build
+
+# Generate build files with Qt6 support
+cmake ..
+
+# Build the project
+make
+
+# Run the application
+./university_system
+```
+
+### Option 2: Using Makefile
+
+```bash
+# Clean and build
+make clean && make
+
+# Run the application
+./university_system
+```
+
+## File Structure
+
+```
+University Management System/
+├── Person/
+│   ├── Person.h / Person.cpp
+├── Student/
+│   ├── Student.h / Student.cpp
+├── Faculty/
+│   ├── Faculty.h / Faculty.cpp
+├── Department/
+│   ├── Department.h / Department.cpp
+├── Administration/
+│   ├── Administration.h / Administration.cpp
+├── Academic/
+│   ├── AcademicAdmin.h / AcademicAdmin.cpp
+├── Residence/
+│   ├── Residence.h / Residence.cpp
+├── Sports/
+│   ├── Sports.h / Sports.cpp
+│   ├── SportsAffiliation.h / SportsAffiliation.cpp
+├── Exam/
+│   ├── Exam.h / Exam.cpp
+│   ├── ExamSection.h / ExamSection.cpp
+│   ├── ExamSchedule.h / ExamSchedule.cpp
+├── Main/
+│   ├── main.cpp
+│   ├── MainWindow.h / MainWindow.cpp
+│   ├── StudentRegistrationDialog.h / StudentRegistrationDialog.cpp
+│   ├── StudentSearchDialog.h / StudentSearchDialog.cpp
+│   ├── GenericListDialog.h / GenericListDialog.cpp
+├── Makefile
+├── CMakeLists.txt
+└── README.md
+```
+
+## Usage Example
+
+```cpp
+// Create departments
+ComputerScience csDepart("DEPT001", "Dr. John Smith");
+
+// Create faculty
+Faculty prof1("F001", "Dr. John Smith", "smith@university.edu", "555-1001", 
+              "EMP001", "Computer Science", "Professor", 85000);
+
+// Create students
+Student student1("S001", "John Doe", "johndoe@student.edu", "555-2001", 
+                 "CS2024001", "Computer Science");
+
+// Enroll student
+student1.enrollCourse("Data Structures");
+
+// Register student
+Administration admin("ADM001", "Mr. David White");
+admin.registerStudent(&student1);
+
+// Assign marks
+AcademicAdmin academicAdmin("AAM001", "Mrs. Patricia Lee");
+academicAdmin.assignMarks("S001", "Data Structures", 92);
+
+// Manage residence
+Residence hostelA("RES001", "Hostel A", "Block A", 10, "Dr. George Martin");
+Student* foundStudent = admin.searchStudent("S001");
+if (foundStudent) {
+    hostelA.assignRoom(1, foundStudent);
+}
+```
+
+## Key Architectural Features
+
+**Object-Oriented Design**: 
+ - Inheritance hierarchies (Person, Department, Sports, Exam)
+ - Polymorphic behavior for department and sport types
+ - Abstract base classes with virtual methods
+
+**Encapsulation**: 
+ - Private member variables with public accessors
+ - Data validation in setter methods
+ - Controlled access to internal data structures
+
+**Qt6 Integration**:
+ - Automatic MOC (Meta-Object Compiler) for signal/slot processing
+ - Modal dialogs for data collection
+ - Layout-based UI management
+ - Custom stylesheets for theming
+
+**Memory Management**:
+ - Proper allocation and deallocation in constructors/destructors
+ - Resource cleanup in MainWindow destructor
+ - Vector and map containers for collection management
 
 ## Requirements
 
--> C++ compiler supporting C++11 or higher
--> Linux/Mac: g++, clang++
--> Windows: Visual Studio, MinGW, or g++
--> CMake (optional, for CMake builds)
+**System Requirements**:
+ - Linux/Unix operating system
+ - g++ compiler supporting C++17
+ - CMake 3.16 or higher
+ - Qt6 development libraries
 
-## Author Notes
+**Library Dependencies**:
+ - Qt6Core
+ - Qt6Gui
+ - Qt6Widgets
 
--> Inheritance and polymorphism
--> File organization (header/implementation separation)
--> Object composition
--> Vector and Map STL containers
--> User-defined data types
--> Memory management with pointers
+**Installation on Ubuntu/Debian**:
+ ```bash
+ sudo apt-get install qt6-base-dev qt6-tools-dev cmake g++
+ ```
 
+## Troubleshooting
+
+**Build Issues**:
+ - Ensure Qt6 is properly installed: `dpkg -l | grep qt6`
+ - Check CMake version: `cmake --version` (requires 3.16+)
+ - Verify C++ compiler: `g++ --version` (requires C++17 support)
+
+**Runtime Issues**:
+ - Verify all Business Logic classes are instantiated in MainWindow
+ - Check dialog pointers are properly initialized
+ - Ensure all signal/slot connections use correct syntax
 
 ---
 
-**Happy Coding! **
+Built with Qt6 and C++17 | Professional University Management Solution
+
