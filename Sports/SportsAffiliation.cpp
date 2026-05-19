@@ -36,6 +36,14 @@ Sports* SportsAffiliation::getSport(const std::string& sportId) {
     return nullptr;
 }
 
+std::vector<Sports*> SportsAffiliation::getAllSports() const {
+    std::vector<Sports*> sports;
+    for (const auto& pair : allSports) {
+        sports.push_back(pair.second);
+    }
+    return sports;
+}
+
 void SportsAffiliation::affiliateStudentWithSport(const std::string& studentId, const std::string& sportId) {
     Sports* sport = getSport(sportId);
     if (sport) {
