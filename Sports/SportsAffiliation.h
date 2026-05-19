@@ -17,6 +17,7 @@ public:
 
     void initializeSports();
     Sports* getSport(const std::string& sportId);
+    std::vector<Sports*> getAllSports() const;
     void affiliateStudentWithSport(const std::string& studentId, const std::string& sportId);
     void removeStudentFromSport(const std::string& studentId, const std::string& sportId);
     std::vector<std::string> getStudentAffiliations(const std::string& studentId) const;
