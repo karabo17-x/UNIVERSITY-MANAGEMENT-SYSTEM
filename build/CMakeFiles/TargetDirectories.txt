@@ -1,0 +1,5 @@
+/home/xster/University Management System/build/CMakeFiles/university_system.dir
+/home/xster/University Management System/build/CMakeFiles/edit_cache.dir
+/home/xster/University Management System/build/CMakeFiles/rebuild_cache.dir
+/home/xster/University Management System/build/CMakeFiles/university_system_autogen_timestamp_deps.dir
+/home/xster/University Management System/build/CMakeFiles/university_system_autogen.dir
