@@ -1,0 +1,2 @@
+set(__QT_DEPLOY_TARGET_university_system_FILE /home/xster/University Management System/build/university_system)
+set(__QT_DEPLOY_TARGET_university_system_TYPE EXECUTABLE)
