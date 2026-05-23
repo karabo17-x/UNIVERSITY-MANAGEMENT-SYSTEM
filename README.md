@@ -18,12 +18,13 @@ The University Management System is a feature-complete Qt6 application that prov
 - **Language**: C++17
 - **GUI Framework**: Qt6 (QtCore, QtGui, QtWidgets)
 - **Build Systems**: CMake (primary) and Makefile (secondary)
-- **Operating System**: Linux/Unix
+- **Operating System**: Windows, Linux/Unix, macOS
 
 ## Building the Project
 
 ### Prerequisites
 
+**Linux**:
 ```bash
 # Install Qt6 development libraries
 sudo apt-get install qt6-base-dev qt6-tools-dev
@@ -32,9 +33,17 @@ sudo apt-get install qt6-base-dev qt6-tools-dev
 sudo apt-get install cmake make g++
 ```
 
+**Windows**:
+```cmd
+# Install Qt6 from official installer: https://www.qt.io/download
+# Install CMake from: https://cmake.org/download/
+# Install Visual Studio Build Tools or MinGW-w64
+# Add Qt6 and CMake to your PATH environment variable
+```
+
 ### Build Instructions
 
-**Using CMake (Recommended)**:
+**Using CMake (Recommended) - Linux**:
 ```bash
 mkdir build
 cd build
@@ -42,15 +51,29 @@ cmake ..
 make
 ```
 
-**Using Make**:
+**Using CMake (Recommended) - Windows**:
+```cmd
+mkdir build
+cd build
+cmake .. -G "Visual Studio 17 2022"
+cmake --build . --config Release
+```
+
+**Using Make - Linux**:
 ```bash
 make clean
 make
 ```
 
+**Using Make - Windows** (with MinGW):
+```cmd
+mingw32-make clean
+mingw32-make
+```
+
 ### Running the Application
 
-After building successfully:
+**After building successfully - Linux**:
 ```bash
 ./build/university_system
 ```
@@ -58,6 +81,16 @@ After building successfully:
 Or if using Makefile:
 ```bash
 ./university_system
+```
+
+**After building successfully - Windows**:
+```cmd
+.\build\Release\university_system.exe
+```
+
+Or if using Makefile:
+```cmd
+university_system.exe
 ```
 
 ## Project Structure
@@ -260,6 +293,7 @@ Each exam type inherits from Exam and represents a specific assessment category.
 
 ### Option 1: Using Makefile
 
+**Linux**:
 ```bash
 # Build the project
 make
@@ -271,8 +305,21 @@ make run
 make clean
 ```
 
+**Windows** (with MinGW):
+```cmd
+# Build the project
+mingw32-make
+
+# Run the program
+mingw32-make run
+
+# Clean build files
+mingw32-make clean
+```
+
 ### Option 2: Using CMake
 
+**Linux**:
 ```bash
 # Create build directory
 mkdir build
@@ -288,8 +335,25 @@ cmake --build .
 ./university_system
 ```
 
+**Windows**:
+```cmd
+# Create build directory
+mkdir build
+cd build
+
+# Generate build files (Visual Studio)
+cmake .. -G "Visual Studio 17 2022"
+
+# Build the project
+cmake --build . --config Release
+
+# Run the executable
+.\Release\university_system.exe
+```
+
 ### Option 3: Manual Compilation
 
+**Linux**:
 ```bash
 # Compile all source files
 g++ -std=c++11 -Wall -Wextra -c Person.cpp
@@ -306,6 +370,25 @@ g++ -std=c++11 -o university_system Person.o Student.o Faculty.o Department.o Ad
 
 # Run the program
 ./university_system
+```
+
+**Windows** (with MinGW):
+```cmd
+# Compile all source files
+g++ -std=c++11 -Wall -Wextra -c Person.cpp
+g++ -std=c++11 -Wall -Wextra -c Student.cpp
+g++ -std=c++11 -Wall -Wextra -c Faculty.cpp
+g++ -std=c++11 -Wall -Wextra -c Department.cpp
+g++ -std=c++11 -Wall -Wextra -c Administration.cpp
+g++ -std=c++11 -Wall -Wextra -c AcademicAdmin.cpp
+g++ -std=c++11 -Wall -Wextra -c Residence.cpp
+g++ -std=c++11 -Wall -Wextra -c main.cpp
+
+# Link object files
+g++ -std=c++11 -o university_system.exe Person.o Student.o Faculty.o Department.o Administration.o AcademicAdmin.o Residence.o main.o
+
+# Run the program
+university_system.exe
 ```
 
 ## File Structure
