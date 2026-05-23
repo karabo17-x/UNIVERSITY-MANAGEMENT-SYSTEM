@@ -411,17 +411,48 @@ void MainWindow::setupMainMenu() {
 void MainWindow::applyStylesheet() {
     qApp->setStyle(QStyleFactory::create("Fusion"));
     
-    QPalette darkPalette;
-    darkPalette.setColor(QPalette::Window, QColor(245, 245, 250));
-    darkPalette.setColor(QPalette::WindowText, QColor(0, 0, 0));
-    darkPalette.setColor(QPalette::Base, QColor(255, 255, 255));
-    darkPalette.setColor(QPalette::AlternateBase, QColor(240, 240, 245));
-    darkPalette.setColor(QPalette::Button, QColor(220, 220, 230));
-    darkPalette.setColor(QPalette::ButtonText, QColor(0, 0, 0));
-    darkPalette.setColor(QPalette::Highlight, QColor(26, 84, 144));
-    darkPalette.setColor(QPalette::HighlightedText, QColor(255, 255, 255));
+    // Apply global stylesheet for all widgets
+    QString globalStylesheet = 
+        "QLineEdit { "
+        "    color: #000000; "
+        "    background-color: #FFFFFF; "
+        "    border: 1px solid #CCCCCC; "
+        "    padding: 5px; "
+        "    selection-background-color: #1a5490; "
+        "} "
+        "QLineEdit:focus { "
+        "    border: 2px solid #1a5490; "
+        "} "
+        "QTextEdit { "
+        "    color: #000000; "
+        "    background-color: #FFFFFF; "
+        "    border: 1px solid #CCCCCC; "
+        "} "
+        "QWidget { "
+        "    background-color: #f5f5fa; "
+        "    color: #000000; "
+        "} "
+        "QPushButton { "
+        "    background-color: #e0e0e6; "
+        "    color: #000000; "
+        "    border: 1px solid #999999; "
+        "    padding: 5px; "
+        "    border-radius: 3px; "
+        "} "
+        "QPushButton:hover { "
+        "    background-color: #d0d0d6; "
+        "} "
+        "QPushButton:pressed { "
+        "    background-color: #c0c0c6; "
+        "} "
+        "QLabel { "
+        "    color: #000000; "
+        "} "
+        "QDialog { "
+        "    background-color: #f5f5fa; "
+        "} ";
     
-    qApp->setPalette(darkPalette);
+    qApp->setStyleSheet(globalStylesheet);
 }
 
 // Slot implementations - all menu actions
