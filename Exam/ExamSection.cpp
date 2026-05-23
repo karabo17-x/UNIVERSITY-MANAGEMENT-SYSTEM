@@ -146,7 +146,7 @@ void ExamSection::displayExamSchedule() const {
     if (exams.empty()) {
         std::cout << "No exams scheduled for this section.\n";
     } else {
-        for (int i = 0; i < exams.size(); i++) {
+        for (size_t i = 0; i < exams.size(); i++) {
             std::cout << "\n[" << (i + 1) << "] " << exams[i]->getExamName()
                       << " (" << exams[i]->getExamType() << ")\n"
                       << "    Date: " << exams[i]->getDate() << "\n"
@@ -163,7 +163,7 @@ void ExamSection::displayEnrolledStudents() const {
     if (enrolledStudents.empty()) {
         std::cout << "No students enrolled in this section.\n";
     } else {
-        for (int i = 0; i < enrolledStudents.size(); i++) {
+        for (size_t i = 0; i < enrolledStudents.size(); i++) {
             std::cout << (i + 1) << ". " << enrolledStudents[i] << "\n";
         }
     }

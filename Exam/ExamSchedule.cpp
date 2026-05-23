@@ -116,7 +116,7 @@ void ExamSchedule::displayAllSections() const {
     if (examSections.empty()) {
         std::cout << "No exam sections found.\n";
     } else {
-        for (int i = 0; i < examSections.size(); i++) {
+        for (size_t i = 0; i < examSections.size(); i++) {
             std::cout << "\n[" << (i + 1) << "] " << examSections[i]->getSectionName()
                       << " (ID: " << examSections[i]->getSectionId() << ")\n"
                       << "    Invigilator: " << examSections[i]->getInvigilator() << "\n"
