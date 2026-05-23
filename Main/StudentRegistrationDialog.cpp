@@ -5,6 +5,8 @@
 #include <QMessageBox>
 #include <QSpinBox>
 #include <QDoubleSpinBox>
+#include <QPalette>
+#include <QColor>
 #include "../Student/Student.h"
 
 StudentRegistrationDialog::StudentRegistrationDialog(Administration* admin, QWidget* parent)
@@ -25,32 +27,48 @@ void StudentRegistrationDialog::setupUI() {
     
     QGridLayout* gridLayout = new QGridLayout();
     
+    // Helper lambda to setup QLineEdit with both stylesheet and palette
+    auto setupLineEdit = [](QLineEdit* edit) {
+        edit->setStyleSheet("QLineEdit { color: #000000; background-color: #FFFFFF; border: 1px solid #CCCCCC; padding: 5px; }");
+        QPalette palette;
+        palette.setColor(QPalette::Text, QColor(0, 0, 0));
+        palette.setColor(QPalette::Base, QColor(255, 255, 255));
+        edit->setPalette(palette);
+    };
+    
     gridLayout->addWidget(new QLabel("Student ID:"), 0, 0);
     studentIdEdit = new QLineEdit();
+    setupLineEdit(studentIdEdit);
     gridLayout->addWidget(studentIdEdit, 0, 1);
     
     gridLayout->addWidget(new QLabel("Name:"), 1, 0);
     nameEdit = new QLineEdit();
+    setupLineEdit(nameEdit);
     gridLayout->addWidget(nameEdit, 1, 1);
     
     gridLayout->addWidget(new QLabel("Email:"), 2, 0);
     emailEdit = new QLineEdit();
+    setupLineEdit(emailEdit);
     gridLayout->addWidget(emailEdit, 2, 1);
     
     gridLayout->addWidget(new QLabel("Phone:"), 3, 0);
     phoneEdit = new QLineEdit();
+    setupLineEdit(phoneEdit);
     gridLayout->addWidget(phoneEdit, 3, 1);
     
     gridLayout->addWidget(new QLabel("Roll Number:"), 4, 0);
     rollNumberEdit = new QLineEdit();
+    setupLineEdit(rollNumberEdit);
     gridLayout->addWidget(rollNumberEdit, 4, 1);
     
     gridLayout->addWidget(new QLabel("Major:"), 5, 0);
     majorEdit = new QLineEdit();
+    setupLineEdit(majorEdit);
     gridLayout->addWidget(majorEdit, 5, 1);
     
     gridLayout->addWidget(new QLabel("GPA:"), 6, 0);
     gpaEdit = new QLineEdit("0.0");
+    setupLineEdit(gpaEdit);
     gridLayout->addWidget(gpaEdit, 6, 1);
     
     mainLayout->addLayout(gridLayout);
