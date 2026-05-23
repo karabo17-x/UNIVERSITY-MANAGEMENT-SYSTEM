@@ -3,6 +3,8 @@
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QMessageBox>
+#include <QPalette>
+#include <QColor>
 
 StudentSearchDialog::StudentSearchDialog(Administration* admin, QWidget* parent)
     : QDialog(parent), admin(admin) {
@@ -23,6 +25,11 @@ void StudentSearchDialog::setupUI() {
     QHBoxLayout* searchLayout = new QHBoxLayout();
     searchLayout->addWidget(new QLabel("Student ID:"));
     searchEdit = new QLineEdit();
+    searchEdit->setStyleSheet("QLineEdit { color: #000000; background-color: #FFFFFF; border: 1px solid #CCCCCC; padding: 5px; }");
+    QPalette searchPalette;
+    searchPalette.setColor(QPalette::Text, QColor(0, 0, 0));
+    searchPalette.setColor(QPalette::Base, QColor(255, 255, 255));
+    searchEdit->setPalette(searchPalette);
     searchLayout->addWidget(searchEdit);
     
     QPushButton* searchButton = new QPushButton("Search");
