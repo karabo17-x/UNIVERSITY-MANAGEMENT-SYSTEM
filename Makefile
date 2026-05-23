@@ -2,7 +2,8 @@ CXX = g++
 MOC = moc
 CXXFLAGS = -std=c++17 -Wall -Wextra -fPIC
 QT_PATH = /usr/include/x86_64-linux-gnu/qt6
-QT_FLAGS = -I$(QT_PATH) -I$(QT_PATH)/QtCore -I$(QT_PATH)/QtGui -I$(QT_PATH)/QtWidgets -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -fPIC
+QT_INCLUDES = -I$(QT_PATH) -I$(QT_PATH)/QtCore -I$(QT_PATH)/QtGui -I$(QT_PATH)/QtWidgets -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++
+QT_FLAGS = $(QT_INCLUDES) -fPIC
 QT_LIBS = -lQt6Core -lQt6Gui -lQt6Widgets
 CXXFLAGS += $(QT_FLAGS)
 TARGET = university_system
@@ -59,7 +60,7 @@ $(TARGET): $(OBJECTS)
 
 # Qt Meta-Object Compiler
 Main/moc_MainWindow.cpp: Main/MainWindow.h
-	$(MOC) $(QT_FLAGS) Main/MainWindow.h -o Main/moc_MainWindow.cpp
+	$(MOC) $(QT_INCLUDES) Main/MainWindow.h -o Main/moc_MainWindow.cpp
 	@echo "Generated moc file for MainWindow.h"
 
 # Compile moc-generated source files to object files
