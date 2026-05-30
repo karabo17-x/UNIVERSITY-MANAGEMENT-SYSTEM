@@ -1,174 +1,161 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'MainWindow.h'
 **
-** Created by: The Qt Meta Object Compiler version 67 (Qt 5.15.17)
+** Created by: The Qt Meta Object Compiler version 69 (Qt 6.10.2)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
 
-#include <memory>
 #include "MainWindow.h"
-#include <QtCore/qbytearray.h>
+#include <QtGui/qtextcursor.h>
 #include <QtCore/qmetatype.h>
+
+#include <QtCore/qtmochelpers.h>
+
+#include <memory>
+
+
+#include <QtCore/qxptype_traits.h>
 #if !defined(Q_MOC_OUTPUT_REVISION)
 #error "The header file 'MainWindow.h' doesn't include <QObject>."
-#elif Q_MOC_OUTPUT_REVISION != 67
-#error "This file was generated using the moc from 5.15.17. It"
+#elif Q_MOC_OUTPUT_REVISION != 69
+#error "This file was generated using the moc from 6.10.2. It"
 #error "cannot be used with the include files from this version of Qt."
 #error "(The moc has changed too much.)"
 #endif
 
-QT_BEGIN_MOC_NAMESPACE
+#ifndef Q_CONSTINIT
+#define Q_CONSTINIT
+#endif
+
 QT_WARNING_PUSH
 QT_WARNING_DISABLE_DEPRECATED
-struct qt_meta_stringdata_MainWindow_t {
-    QByteArrayData data[32];
-    char stringdata0[544];
-};
-#define QT_MOC_LITERAL(idx, ofs, len) \
-    Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
-    qptrdiff(offsetof(qt_meta_stringdata_MainWindow_t, stringdata0) + ofs \
-        - idx * sizeof(QByteArrayData)) \
-    )
-static const qt_meta_stringdata_MainWindow_t qt_meta_stringdata_MainWindow = {
-    {
-QT_MOC_LITERAL(0, 0, 10), // "MainWindow"
-QT_MOC_LITERAL(1, 11, 17), // "onRegisterStudent"
-QT_MOC_LITERAL(2, 29, 0), // ""
-QT_MOC_LITERAL(3, 30, 14), // "onViewStudents"
-QT_MOC_LITERAL(4, 45, 15), // "onSearchStudent"
-QT_MOC_LITERAL(5, 61, 19), // "onDeregisterStudent"
-QT_MOC_LITERAL(6, 81, 13), // "onAssignMarks"
-QT_MOC_LITERAL(7, 95, 11), // "onViewMarks"
-QT_MOC_LITERAL(8, 107, 12), // "onAddFaculty"
-QT_MOC_LITERAL(9, 120, 13), // "onViewFaculty"
-QT_MOC_LITERAL(10, 134, 19), // "onViewFacultyByDept"
-QT_MOC_LITERAL(11, 154, 14), // "onAssignCourse"
-QT_MOC_LITERAL(12, 169, 26), // "onViewCourseFacultyMapping"
-QT_MOC_LITERAL(13, 196, 17), // "onViewDepartments"
-QT_MOC_LITERAL(14, 214, 17), // "onViewDeptFaculty"
-QT_MOC_LITERAL(15, 232, 13), // "onViewPayroll"
-QT_MOC_LITERAL(16, 246, 17), // "onAssignResidence"
-QT_MOC_LITERAL(17, 264, 24), // "onViewResidenceOccupancy"
-QT_MOC_LITERAL(18, 289, 12), // "onViewSports"
-QT_MOC_LITERAL(19, 302, 16), // "onAffiliateSport"
-QT_MOC_LITERAL(20, 319, 19), // "onViewStudentSports"
-QT_MOC_LITERAL(21, 339, 23), // "onViewSportParticipants"
-QT_MOC_LITERAL(22, 363, 24), // "onRemoveSportAffiliation"
-QT_MOC_LITERAL(23, 388, 24), // "onInitializeExamSchedule"
-QT_MOC_LITERAL(24, 413, 19), // "onCreateExamSection"
-QT_MOC_LITERAL(25, 433, 9), // "onAddExam"
-QT_MOC_LITERAL(26, 443, 19), // "onEnrollExamSection"
-QT_MOC_LITERAL(27, 463, 18), // "onViewExamSchedule"
-QT_MOC_LITERAL(28, 482, 24), // "onViewExamSectionDetails"
-QT_MOC_LITERAL(29, 507, 16), // "onViewSystemInfo"
-QT_MOC_LITERAL(30, 524, 6), // "onExit"
-QT_MOC_LITERAL(31, 531, 12) // "onBackToMenu"
+QT_WARNING_DISABLE_GCC("-Wuseless-cast")
+namespace {
+struct qt_meta_tag_ZN10MainWindowE_t {};
+} // unnamed namespace
 
-    },
-    "MainWindow\0onRegisterStudent\0\0"
-    "onViewStudents\0onSearchStudent\0"
-    "onDeregisterStudent\0onAssignMarks\0"
-    "onViewMarks\0onAddFaculty\0onViewFaculty\0"
-    "onViewFacultyByDept\0onAssignCourse\0"
-    "onViewCourseFacultyMapping\0onViewDepartments\0"
-    "onViewDeptFaculty\0onViewPayroll\0"
-    "onAssignResidence\0onViewResidenceOccupancy\0"
-    "onViewSports\0onAffiliateSport\0"
-    "onViewStudentSports\0onViewSportParticipants\0"
-    "onRemoveSportAffiliation\0"
-    "onInitializeExamSchedule\0onCreateExamSection\0"
-    "onAddExam\0onEnrollExamSection\0"
-    "onViewExamSchedule\0onViewExamSectionDetails\0"
-    "onViewSystemInfo\0onExit\0onBackToMenu"
-};
-#undef QT_MOC_LITERAL
+template <> constexpr inline auto MainWindow::qt_create_metaobjectdata<qt_meta_tag_ZN10MainWindowE_t>()
+{
+    namespace QMC = QtMocConstants;
+    QtMocHelpers::StringRefStorage qt_stringData {
+        "MainWindow",
+        "onRegisterStudent",
+        "",
+        "onViewStudents",
+        "onSearchStudent",
+        "onDeregisterStudent",
+        "onAssignMarks",
+        "onViewMarks",
+        "onAddFaculty",
+        "onViewFaculty",
+        "onViewFacultyByDept",
+        "onAssignCourse",
+        "onViewCourseFacultyMapping",
+        "onViewDepartments",
+        "onViewDeptFaculty",
+        "onViewPayroll",
+        "onAssignResidence",
+        "onViewResidenceOccupancy",
+        "onViewSports",
+        "onAffiliateSport",
+        "onViewStudentSports",
+        "onViewSportParticipants",
+        "onRemoveSportAffiliation",
+        "onInitializeExamSchedule",
+        "onCreateExamSection",
+        "onAddExam",
+        "onEnrollExamSection",
+        "onViewExamSchedule",
+        "onViewExamSectionDetails",
+        "onViewSystemInfo",
+        "onExit",
+        "onBackToMenu"
+    };
 
-static const uint qt_meta_data_MainWindow[] = {
-
- // content:
-       8,       // revision
-       0,       // classname
-       0,    0, // classinfo
-      30,   14, // methods
-       0,    0, // properties
-       0,    0, // enums/sets
-       0,    0, // constructors
-       0,       // flags
-       0,       // signalCount
-
- // slots: name, argc, parameters, tag, flags
-       1,    0,  164,    2, 0x08 /* Private */,
-       3,    0,  165,    2, 0x08 /* Private */,
-       4,    0,  166,    2, 0x08 /* Private */,
-       5,    0,  167,    2, 0x08 /* Private */,
-       6,    0,  168,    2, 0x08 /* Private */,
-       7,    0,  169,    2, 0x08 /* Private */,
-       8,    0,  170,    2, 0x08 /* Private */,
-       9,    0,  171,    2, 0x08 /* Private */,
-      10,    0,  172,    2, 0x08 /* Private */,
-      11,    0,  173,    2, 0x08 /* Private */,
-      12,    0,  174,    2, 0x08 /* Private */,
-      13,    0,  175,    2, 0x08 /* Private */,
-      14,    0,  176,    2, 0x08 /* Private */,
-      15,    0,  177,    2, 0x08 /* Private */,
-      16,    0,  178,    2, 0x08 /* Private */,
-      17,    0,  179,    2, 0x08 /* Private */,
-      18,    0,  180,    2, 0x08 /* Private */,
-      19,    0,  181,    2, 0x08 /* Private */,
-      20,    0,  182,    2, 0x08 /* Private */,
-      21,    0,  183,    2, 0x08 /* Private */,
-      22,    0,  184,    2, 0x08 /* Private */,
-      23,    0,  185,    2, 0x08 /* Private */,
-      24,    0,  186,    2, 0x08 /* Private */,
-      25,    0,  187,    2, 0x08 /* Private */,
-      26,    0,  188,    2, 0x08 /* Private */,
-      27,    0,  189,    2, 0x08 /* Private */,
-      28,    0,  190,    2, 0x08 /* Private */,
-      29,    0,  191,    2, 0x08 /* Private */,
-      30,    0,  192,    2, 0x08 /* Private */,
-      31,    0,  193,    2, 0x08 /* Private */,
-
- // slots: parameters
-    QMetaType::Void,
-    QMetaType::Void,
-    QMetaType::Void,
-    QMetaType::Void,
-    QMetaType::Void,
-    QMetaType::Void,
-    QMetaType::Void,
-    QMetaType::Void,
-    QMetaType::Void,
-    QMetaType::Void,
-    QMetaType::Void,
-    QMetaType::Void,
-    QMetaType::Void,
-    QMetaType::Void,
-    QMetaType::Void,
-    QMetaType::Void,
-    QMetaType::Void,
-    QMetaType::Void,
-    QMetaType::Void,
-    QMetaType::Void,
-    QMetaType::Void,
-    QMetaType::Void,
-    QMetaType::Void,
-    QMetaType::Void,
-    QMetaType::Void,
-    QMetaType::Void,
-    QMetaType::Void,
-    QMetaType::Void,
-    QMetaType::Void,
-    QMetaType::Void,
-
-       0        // eod
-};
+    QtMocHelpers::UintData qt_methods {
+        // Slot 'onRegisterStudent'
+        QtMocHelpers::SlotData<void()>(1, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'onViewStudents'
+        QtMocHelpers::SlotData<void()>(3, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'onSearchStudent'
+        QtMocHelpers::SlotData<void()>(4, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'onDeregisterStudent'
+        QtMocHelpers::SlotData<void()>(5, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'onAssignMarks'
+        QtMocHelpers::SlotData<void()>(6, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'onViewMarks'
+        QtMocHelpers::SlotData<void()>(7, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'onAddFaculty'
+        QtMocHelpers::SlotData<void()>(8, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'onViewFaculty'
+        QtMocHelpers::SlotData<void()>(9, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'onViewFacultyByDept'
+        QtMocHelpers::SlotData<void()>(10, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'onAssignCourse'
+        QtMocHelpers::SlotData<void()>(11, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'onViewCourseFacultyMapping'
+        QtMocHelpers::SlotData<void()>(12, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'onViewDepartments'
+        QtMocHelpers::SlotData<void()>(13, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'onViewDeptFaculty'
+        QtMocHelpers::SlotData<void()>(14, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'onViewPayroll'
+        QtMocHelpers::SlotData<void()>(15, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'onAssignResidence'
+        QtMocHelpers::SlotData<void()>(16, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'onViewResidenceOccupancy'
+        QtMocHelpers::SlotData<void()>(17, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'onViewSports'
+        QtMocHelpers::SlotData<void()>(18, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'onAffiliateSport'
+        QtMocHelpers::SlotData<void()>(19, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'onViewStudentSports'
+        QtMocHelpers::SlotData<void()>(20, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'onViewSportParticipants'
+        QtMocHelpers::SlotData<void()>(21, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'onRemoveSportAffiliation'
+        QtMocHelpers::SlotData<void()>(22, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'onInitializeExamSchedule'
+        QtMocHelpers::SlotData<void()>(23, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'onCreateExamSection'
+        QtMocHelpers::SlotData<void()>(24, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'onAddExam'
+        QtMocHelpers::SlotData<void()>(25, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'onEnrollExamSection'
+        QtMocHelpers::SlotData<void()>(26, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'onViewExamSchedule'
+        QtMocHelpers::SlotData<void()>(27, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'onViewExamSectionDetails'
+        QtMocHelpers::SlotData<void()>(28, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'onViewSystemInfo'
+        QtMocHelpers::SlotData<void()>(29, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'onExit'
+        QtMocHelpers::SlotData<void()>(30, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'onBackToMenu'
+        QtMocHelpers::SlotData<void()>(31, 2, QMC::AccessPrivate, QMetaType::Void),
+    };
+    QtMocHelpers::UintData qt_properties {
+    };
+    QtMocHelpers::UintData qt_enums {
+    };
+    return QtMocHelpers::metaObjectData<MainWindow, qt_meta_tag_ZN10MainWindowE_t>(QMC::MetaObjectFlag{}, qt_stringData,
+            qt_methods, qt_properties, qt_enums);
+}
+Q_CONSTINIT const QMetaObject MainWindow::staticMetaObject = { {
+    QMetaObject::SuperData::link<QMainWindow::staticMetaObject>(),
+    qt_staticMetaObjectStaticContent<qt_meta_tag_ZN10MainWindowE_t>.stringdata,
+    qt_staticMetaObjectStaticContent<qt_meta_tag_ZN10MainWindowE_t>.data,
+    qt_static_metacall,
+    nullptr,
+    qt_staticMetaObjectRelocatingContent<qt_meta_tag_ZN10MainWindowE_t>.metaTypes,
+    nullptr
+} };
 
 void MainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
 {
+    auto *_t = static_cast<MainWindow *>(_o);
     if (_c == QMetaObject::InvokeMetaMethod) {
-        auto *_t = static_cast<MainWindow *>(_o);
-        (void)_t;
         switch (_id) {
         case 0: _t->onRegisterStudent(); break;
         case 1: _t->onViewStudents(); break;
@@ -206,16 +193,6 @@ void MainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, 
     (void)_a;
 }
 
-QT_INIT_METAOBJECT const QMetaObject MainWindow::staticMetaObject = { {
-    QMetaObject::SuperData::link<QMainWindow::staticMetaObject>(),
-    qt_meta_stringdata_MainWindow.data,
-    qt_meta_data_MainWindow,
-    qt_static_metacall,
-    nullptr,
-    nullptr
-} };
-
-
 const QMetaObject *MainWindow::metaObject() const
 {
     return QObject::d_ptr->metaObject ? QObject::d_ptr->dynamicMetaObject() : &staticMetaObject;
@@ -224,7 +201,7 @@ const QMetaObject *MainWindow::metaObject() const
 void *MainWindow::qt_metacast(const char *_clname)
 {
     if (!_clname) return nullptr;
-    if (!strcmp(_clname, qt_meta_stringdata_MainWindow.stringdata0))
+    if (!strcmp(_clname, qt_staticMetaObjectStaticContent<qt_meta_tag_ZN10MainWindowE_t>.strings))
         return static_cast<void*>(this);
     return QMainWindow::qt_metacast(_clname);
 }
@@ -238,12 +215,12 @@ int MainWindow::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
         if (_id < 30)
             qt_static_metacall(this, _c, _id, _a);
         _id -= 30;
-    } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
+    }
+    if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
         if (_id < 30)
-            *reinterpret_cast<int*>(_a[0]) = -1;
+            *reinterpret_cast<QMetaType *>(_a[0]) = QMetaType();
         _id -= 30;
     }
     return _id;
 }
 QT_WARNING_POP
-QT_END_MOC_NAMESPACE
