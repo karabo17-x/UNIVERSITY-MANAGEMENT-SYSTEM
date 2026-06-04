@@ -51,3 +51,4 @@ test_menu.txt
 build/
 test_*.sh
 test_*.cpp
+.vscode/
