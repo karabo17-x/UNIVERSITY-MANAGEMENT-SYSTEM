@@ -1,0 +1,37 @@
+{
+    "tasks": [
+        {
+            "type": "shell",
+            "label": "Build University System (Make)",
+            "command": "make",
+            "args": [
+                "clean",
+                "&&",
+                "make"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "detail": "Build entire project using Makefile"
+        },
+        {
+            "type": "shell",
+            "label": "Run University System",
+            "command": "${workspaceFolder}/university_system",
+            "group": {
+                "kind": "test",
+                "isDefault": true
+            },
+            "detail": "Run the compiled executable",
+            "dependsOn": "Build University System (Make)"
+        }
+    ],
+    "version": "2.0.0"
+}

@@ -1,0 +1,45 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "C++ Debug (University System)",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/university_system",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                },
+                {
+                    "description": "Set disassembly flavor to Intel",
+                    "text": "-gdb-set disassembly-flavor intel",
+                    "ignoreFailures": true
+                }
+            ],
+            "preLaunchTask": "Build University System (Make)",
+            "sourceLanguages": ["cpp"]
+        },
+        {
+            "name": "C++ Run (University System)",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/university_system",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": true,
+            "MIMode": "gdb",
+            "preLaunchTask": "Build University System (Make)",
+            "sourceLanguages": ["cpp"]
+        }
+    ]
+}
