@@ -47,11 +47,9 @@ university_system
 *.0
 *.exe
 test_menu.txt
-.vscode/
 build/
 test_*.sh
 test_*.cpp
-.vscode/
 test_input
 test_input_insert
 test_send_key

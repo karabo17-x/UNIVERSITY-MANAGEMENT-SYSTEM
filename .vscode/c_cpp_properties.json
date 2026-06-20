@@ -1,0 +1,47 @@
+{
+    "configurations": [
+        {
+            "name": "Linux",
+            "includePath": [
+                "${workspaceFolder}",
+                "${workspaceFolder}/Main",
+                "${workspaceFolder}/Student",
+                "${workspaceFolder}/Faculty",
+                "${workspaceFolder}/Administration",
+                "${workspaceFolder}/Academic",
+                "${workspaceFolder}/Department",
+                "${workspaceFolder}/Person",
+                "${workspaceFolder}/Residence",
+                "${workspaceFolder}/Sports",
+                "${workspaceFolder}/Exam",
+                "/usr/include/x86_64-linux-gnu/qt6",
+                "/usr/include/x86_64-linux-gnu/qt6/QtCore",
+                "/usr/include/x86_64-linux-gnu/qt6/QtGui",
+                "/usr/include/x86_64-linux-gnu/qt6/QtWidgets",
+                "/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++",
+                "/usr/lib/gcc/x86_64-linux-gnu/11/include",
+                "/usr/include/c++/11",
+                "/usr/include/x86_64-linux-gnu/c++/11",
+                "/usr/include"
+            ],
+            "defines": [
+                "_DEBUG",
+                "UNICODE",
+                "_UNICODE"
+            ],
+            "compilerPath": "/usr/bin/g++",
+            "cStandard": "c17",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "linux-gcc-x64",
+            "browse": {
+                "path": [
+                    "${workspaceFolder}",
+                    "/usr/include/x86_64-linux-gnu/qt6",
+                    "/usr/include/c++/11"
+                ],
+                "limitSymbolsToIncludedHeaders": true
+            }
+        }
+    ],
+    "version": 4
+}
