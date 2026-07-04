@@ -1,0 +1,54 @@
+name: PR Quality
+
+on:
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  lint-title:
+    name: Lint PR title
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check conventional commit format
+        uses: amannn/action-semantic-pull-request@v5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  format-check:
+    name: Check code formatting
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install clang-format
+        run: sudo apt-get update && sudo apt-get install -y clang-format
+
+      - name: Check formatting
+        run: |
+          if [ ! -f .clang-format ]; then
+            echo "No .clang-format file found in repo root — skipping strict formatting check."
+            echo "Add a .clang-format file to enable this check."
+            exit 0
+          fi
+          files=$(find . -regex '.*\.\(cpp\|h\|hpp\)$' -not -path './build/*')
+          clang-format --dry-run --Werror $files
+
+  quick-build:
+    name: Quick build check (ubuntu)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Qt6
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: '6.5.*'
+          cache: true
+
+      - name: Configure CMake
+        run: cmake -B build -DCMAKE_BUILD_TYPE=Debug
+
+      - name: Build
+        run: cmake --build build --parallel
