@@ -1,65 +1,62 @@
-name: CI/CD Release
+name: CI
+
+# Fast build check on every push and pull request, to any branch.
+# This is the gate that staging/production releases implicitly rely on:
+# if this fails, the later release workflows won't have anything good to ship.
 
 on:
   push:
-    tags:
-      - 'v*.*.*'
+    branches: ["**"]
+  pull_request:
+    branches: ["**"]
 
 jobs:
-  build-release:
-    name: Build release (${{ matrix.os }})
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, windows-2022, macos-15]
-
+  build-linux:
+    name: Build (Linux, Qt6)
+    runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Install Qt6
         uses: jurplel/install-qt-action@v4
         with:
-          version: '6.5.*'
-          cache: true
+          version: "6.5.*"
+          modules: "qtbase"
 
-      - name: Configure CMake
-        run: cmake -B build -DCMAKE_BUILD_TYPE=Release
+      - name: Configure (CMake)
+        run: |
+          cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
 
       - name: Build
-        run: cmake --build build --config Release --parallel
+        run: cmake --build build --config Release -j 2
 
-      - name: Package artifact
-        shell: bash
-        run: |
-          mkdir -p dist
-          case "${{ matrix.os }}" in
-            ubuntu-latest) cp build/university_system dist/ ;;
-            windows-2022)  cp build/Release/university_system.exe dist/ ;;
-            macos-15)      cp build/university_system dist/ ;;
-          esac
+      - name: Smoke-check binary exists
+        run: test -f build/university_system
 
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: university_system-${{ matrix.os }}
-          path: dist/
-
-  release:
-    name: Create GitHub Release
-    needs: build-release
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
+  build-windows:
+    name: Build (Windows, Qt6)
+    runs-on: windows-latest
     steps:
-      - name: Download all artifacts
-        uses: actions/download-artifact@v4
-        with:
-          path: artifacts
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-      - name: Publish release
-        uses: softprops/action-gh-release@v2
+      - name: Install Qt6
+        uses: jurplel/install-qt-action@v4
         with:
-          files: artifacts/**/*
-          generate_release_notes: true
+          version: "6.5.*"
+          modules: "qtbase"
+
+      - name: Configure (CMake)
+        run: cmake -S . -B build -G "Visual Studio 17 2022"
+
+      - name: Build
+        run: cmake --build build --config Release
+
+      - name: Smoke-check binary exists
+        shell: pwsh
+        run: |
+          if (-not (Test-Path "build/Release/university_system.exe")) {
+            Write-Error "Expected binary not found"
+            exit 1
+          }
