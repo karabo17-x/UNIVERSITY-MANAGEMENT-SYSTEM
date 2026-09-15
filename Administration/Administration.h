@@ -2,6 +2,7 @@
 #define ADMINISTRATION_H
 
 #include <string>
+#include <memory>
 #include <vector>
 #include "../Student/Student.h"
 #include "../Faculty/Faculty.h"
@@ -11,7 +12,8 @@ class Administration {
 private:
     std::string adminId;
     std::string adminName;
-    std::vector<Student*> registeredStudents;
+    // Administration owns registered students. Other classes receive non-owning views.
+    std::vector<std::unique_ptr<Student>> registeredStudents;
     std::vector<Faculty*> facultyList;
     std::vector<Department*> departments;
     int totalRegistrations;
@@ -35,7 +37,7 @@ public:
     std::vector<Department*> getDepartments() const;
 
     // Student registration management
-    void registerStudent(Student* student);
+    bool registerStudent(std::unique_ptr<Student> student);
     void deregisterStudent(const std::string& studentId);
     Student* searchStudent(const std::string& studentId);
     void displayAllRegistrations() const;

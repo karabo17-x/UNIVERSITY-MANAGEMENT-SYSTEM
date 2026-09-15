@@ -99,7 +99,6 @@ private:
     Residence *hostelA;
     SportsAffiliation *sportsAffiliation;
     std::vector<Department*> departments;
-    std::vector<Student*> students;
     std::vector<Faculty*> faculty;
 
     // Helper methods

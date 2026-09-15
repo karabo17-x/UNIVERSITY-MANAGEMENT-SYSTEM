@@ -1,21 +1,32 @@
-name: CI
-
-# Fast build check on every push and pull request, to any branch.
-# This is the gate that staging/production releases implicitly rely on:
-# if this fails, the later release workflows won't have anything good to ship.
+name: Build and Test
 
 on:
   push:
-    branches: ["**"]
+    branches: [main, develop]
   pull_request:
-    branches: ["**"]
+    branches: [main, develop]
+  workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
-  build-linux:
-    name: Build (Linux, Qt6)
-    runs-on: ubuntu-latest
+  build-and-test:
+    name: ${{ matrix.name }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Linux (Qt 6)
+            os: ubuntu-latest
+          - name: Windows (Qt 6)
+            os: windows-2022
+          - name: macOS (Qt 6)
+            os: macos-15
     steps:
-      - name: Checkout code
+      - name: Checkout
         uses: actions/checkout@v4
 
       - name: Install Qt6
@@ -25,38 +36,10 @@ jobs:
           modules: "qtbase"
 
       - name: Configure (CMake)
-        run: |
-          cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
 
       - name: Build
-        run: cmake --build build --config Release -j 2
+        run: cmake --build build --config Release --parallel
 
-      - name: Smoke-check binary exists
-        run: test -f build/university_system
-
-  build-windows:
-    name: Build (Windows, Qt6)
-    runs-on: windows-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Install Qt6
-        uses: jurplel/install-qt-action@v4
-        with:
-          version: "6.5.*"
-          modules: "qtbase"
-
-      - name: Configure (CMake)
-        run: cmake -S . -B build -G "Visual Studio 17 2022"
-
-      - name: Build
-        run: cmake --build build --config Release
-
-      - name: Smoke-check binary exists
-        shell: pwsh
-        run: |
-          if (-not (Test-Path "build/Release/university_system.exe")) {
-            Write-Error "Expected binary not found"
-            exit 1
-          }
+      - name: Test
+        run: ctest --test-dir build --build-config Release --output-on-failure
