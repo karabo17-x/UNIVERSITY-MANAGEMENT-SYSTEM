@@ -21,7 +21,12 @@ int Administration::getTotalRegistrations() const {
 }
 
 std::vector<Student*> Administration::getRegisteredStudents() const {
-    return registeredStudents;
+    std::vector<Student*> students;
+    students.reserve(registeredStudents.size());
+    for (const auto& student : registeredStudents) {
+        students.push_back(student.get());
+    }
+    return students;
 }
 
 std::vector<Faculty*> Administration::getFacultyList() const {
@@ -34,7 +39,7 @@ std::vector<Department*> Administration::getDepartments() const {
 
 bool Administration::studentIdExists(const std::string& studentId) {
     auto it = std::find_if(registeredStudents.begin(), registeredStudents.end(),
-        [&studentId](Student* s) { return s->getId() == studentId; });
+        [&studentId](const std::unique_ptr<Student>& s) { return s->getId() == studentId; });
     return it != registeredStudents.end();
 }
 
@@ -61,20 +66,26 @@ std::string Administration::validatePhone(const std::string& phone) {
     return ""; // Empty string means valid
 }
 
-void Administration::registerStudent(Student* student) {
+bool Administration::registerStudent(std::unique_ptr<Student> student) {
+    if (student == nullptr) {
+        std::cout << "\n ERROR: Cannot register a null student.\n";
+        return false;
+    }
     if (studentIdExists(student->getId())) {
         std::cout << "\n ERROR: Student with ID " << student->getId() << " is already registered!\n";
-        return;
+        return false;
     }
-    registeredStudents.push_back(student);
+    registeredStudents.push_back(std::move(student));
     totalRegistrations++;
-    std::cout << "\n Student " << student->getName() << " (Roll: " << student->getRollNumber() 
+    const Student* registeredStudent = registeredStudents.back().get();
+    std::cout << "\n Student " << registeredStudent->getName() << " (Roll: " << registeredStudent->getRollNumber()
               << ") registered successfully!\n";
+    return true;
 }
 
 void Administration::deregisterStudent(const std::string& studentId) {
     auto it = std::find_if(registeredStudents.begin(), registeredStudents.end(),
-        [&studentId](Student* s) { return s->getId() == studentId; });
+        [&studentId](const std::unique_ptr<Student>& s) { return s->getId() == studentId; });
     
     if (it != registeredStudents.end()) {
         std::cout << "Student " << (*it)->getName() << " deregistered.\n";
@@ -87,10 +98,10 @@ void Administration::deregisterStudent(const std::string& studentId) {
 
 Student* Administration::searchStudent(const std::string& studentId) {
     auto it = std::find_if(registeredStudents.begin(), registeredStudents.end(),
-        [&studentId](Student* s) { return s->getId() == studentId; });
+        [&studentId](const std::unique_ptr<Student>& s) { return s->getId() == studentId; });
     
     if (it != registeredStudents.end()) {
-        return *it;
+        return it->get();
     }
     return nullptr;
 }
@@ -535,4 +546,3 @@ void Administration::displayCourseFacultyMapping() const {
     }
     std::cout << "=================================================\n";
 }
-

@@ -51,6 +51,12 @@ cmake ..
 make
 ```
 
+Run the automated domain tests after building:
+
+```bash
+ctest --test-dir build --output-on-failure
+```
+
 **Using CMake (Recommended) - Windows**:
 ```cmd
 mkdir build
@@ -672,4 +678,3 @@ if (foundStudent) {
 ---
 
 Built with Qt6 and C++17 | Professional University Management Solution
-
