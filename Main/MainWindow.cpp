@@ -43,9 +43,6 @@ MainWindow::~MainWindow() {
     for (auto dept : departments) {
         delete dept;
     }
-    for (auto student : students) {
-        delete student;
-    }
     for (auto fac : faculty) {
         delete fac;
     }
@@ -904,7 +901,7 @@ void MainWindow::onViewSystemInfo() {
     ).arg(QString::fromStdString(admin->getAdminName()), 
           QString::fromStdString(academicAdmin->getAdminName()), 
           QString::number(departments.size()), 
-          QString::number(students.size()),
+          QString::number(admin->getTotalRegistrations()),
           QString::number(faculty.size()));
     
     QMessageBox::information(this, "System Information", info);

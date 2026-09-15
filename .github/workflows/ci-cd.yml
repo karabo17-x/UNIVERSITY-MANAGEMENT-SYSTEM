@@ -1,65 +1,34 @@
-name: CI/CD Release
+name: Build and Test
 
 on:
   push:
-    tags:
-      - 'v*.*.*'
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
-  build-release:
-    name: Build release (${{ matrix.os }})
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, windows-2022, macos-15]
-
+  build-and-test:
+    name: Linux (Qt 6)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install Qt6
-        uses: jurplel/install-qt-action@v4
-        with:
-          version: '6.5.*'
-          cache: true
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y cmake g++ qt6-base-dev
 
-      - name: Configure CMake
-        run: cmake -B build -DCMAKE_BUILD_TYPE=Release
+      - name: Configure (CMake)
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
 
       - name: Build
         run: cmake --build build --config Release --parallel
 
-      - name: Package artifact
-        shell: bash
-        run: |
-          mkdir -p dist
-          case "${{ matrix.os }}" in
-            ubuntu-latest) cp build/university_system dist/ ;;
-            windows-2022)  cp build/Release/university_system.exe dist/ ;;
-            macos-15)      cp build/university_system dist/ ;;
-          esac
-
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: university_system-${{ matrix.os }}
-          path: dist/
-
-  release:
-    name: Create GitHub Release
-    needs: build-release
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-      - name: Download all artifacts
-        uses: actions/download-artifact@v4
-        with:
-          path: artifacts
-
-      - name: Publish release
-        uses: softprops/action-gh-release@v2
-        with:
-          files: artifacts/**/*
-          generate_release_notes: true
+      - name: Test
+        run: ctest --test-dir build --build-config Release --output-on-failure
