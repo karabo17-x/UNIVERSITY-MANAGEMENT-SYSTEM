@@ -190,7 +190,7 @@ void MainWindow::setupMainMenu() {
     brandMark->setObjectName("brandMark");
     brandMark->setAlignment(Qt::AlignCenter);
     brandMark->setFixedSize(54, 54);
-    auto *brandText = new QLabel("UMS\n<small>STUDENT PORTAL</small>");
+    auto *brandText = new QLabel("UMS");
     brandText->setObjectName("brandText");
     brandRow->addWidget(brandMark);
     brandRow->addWidget(brandText);
@@ -598,8 +598,7 @@ void MainWindow::applyStylesheet() {
         QWidget#portalRoot, QWidget#portalContent { background: #f5f5f7; }
         QFrame#sidebar { background: #ffffff; border-right: 1px solid #e5e5e9; }
         QLabel#brandMark { background: #6f168d; color: white; border-radius: 16px; font-size: 30px; font-weight: 800; }
-        QLabel#brandText { color: #6f168d; font-size: 21px; font-weight: 700; letter-spacing: 1px; }
-        QLabel#brandText small { color: #7c7c84; font-size: 8px; letter-spacing: 2px; }
+        QLabel#brandText { color: #6f168d; font-size: 24px; font-weight: 700; letter-spacing: 1px; }
         QPushButton#navButton, QPushButton#navButtonActive { border: 0; border-radius: 6px; padding: 0 12px; text-align: left; font-size: 14px; }
         QPushButton#navButton { background: transparent; color: #68717d; }
         QPushButton#navButton:hover { background: #f2edf5; color: #6f168d; }
