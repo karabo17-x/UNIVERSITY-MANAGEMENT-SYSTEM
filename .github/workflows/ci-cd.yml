@@ -2,9 +2,9 @@ name: Build and Test
 
 on:
   push:
-    branches: [main, develop]
+    branches: [main]
   pull_request:
-    branches: [main, develop]
+    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -12,28 +12,17 @@ permissions:
 
 jobs:
   build-and-test:
-    name: ${{ matrix.name }}
-    runs-on: ${{ matrix.os }}
+    name: Linux (Qt 6)
+    runs-on: ubuntu-latest
     timeout-minutes: 20
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - name: Linux (Qt 6)
-            os: ubuntu-latest
-          - name: Windows (Qt 6)
-            os: windows-2022
-          - name: macOS (Qt 6)
-            os: macos-15
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install Qt6
-        uses: jurplel/install-qt-action@v4
-        with:
-          version: "6.5.*"
-          modules: "qtbase"
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y cmake g++ qt6-base-dev
 
       - name: Configure (CMake)
         run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
