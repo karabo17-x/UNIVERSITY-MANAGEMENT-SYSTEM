@@ -11,6 +11,10 @@
 #include <QStyleFactory>
 #include <QMessageBox>
 #include <QInputDialog>
+#include <QDate>
+#include <QFrame>
+#include <QTabWidget>
+#include <functional>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), admin(nullptr), academicAdmin(nullptr), 
@@ -18,7 +22,8 @@ MainWindow::MainWindow(QWidget *parent)
     
     setWindowTitle("University Management System");
     setWindowIcon(style()->standardIcon(QStyle::SP_FileDialogDetailedView));
-    setGeometry(100, 100, 1000, 700);
+    setGeometry(80, 60, 1240, 820);
+    setMinimumSize(980, 680);
     
     // Initialize business logic
     initializeSystemData();
@@ -34,8 +39,8 @@ MainWindow::MainWindow(QWidget *parent)
     // Apply stylesheet
     applyStylesheet();
     
-    // Show welcome screen first
-    stackedWidget->setCurrentWidget(welcomeWidget);
+    // Open directly on the student portal dashboard.
+    stackedWidget->setCurrentWidget(menuWidget);
 }
 
 MainWindow::~MainWindow() {
@@ -166,6 +171,186 @@ void MainWindow::setupWelcomeScreen() {
 }
 
 void MainWindow::setupMainMenu() {
+    menuWidget = new QWidget();
+    menuWidget->setObjectName("portalRoot");
+
+    auto *rootLayout = new QHBoxLayout(menuWidget);
+    rootLayout->setContentsMargins(0, 0, 0, 0);
+    rootLayout->setSpacing(0);
+
+    auto *sidebar = new QFrame();
+    sidebar->setObjectName("sidebar");
+    sidebar->setFixedWidth(230);
+    auto *sidebarLayout = new QVBoxLayout(sidebar);
+    sidebarLayout->setContentsMargins(24, 25, 20, 22);
+    sidebarLayout->setSpacing(5);
+
+    auto *brandRow = new QHBoxLayout();
+    auto *brandMark = new QLabel("U");
+    brandMark->setObjectName("brandMark");
+    brandMark->setAlignment(Qt::AlignCenter);
+    brandMark->setFixedSize(54, 54);
+    auto *brandText = new QLabel("UMS\n<small>STUDENT PORTAL</small>");
+    brandText->setObjectName("brandText");
+    brandRow->addWidget(brandMark);
+    brandRow->addWidget(brandText);
+    brandRow->addStretch();
+    sidebarLayout->addLayout(brandRow);
+    sidebarLayout->addSpacing(28);
+
+    auto addNavigation = [this, sidebarLayout](const QString &text, const std::function<void()> &action,
+                                                bool selected = false) {
+        auto *button = new QPushButton(text);
+        button->setObjectName(selected ? "navButtonActive" : "navButton");
+        button->setCursor(Qt::PointingHandCursor);
+        button->setMinimumHeight(38);
+        connect(button, &QPushButton::clicked, this, action);
+        sidebarLayout->addWidget(button);
+    };
+
+    addNavigation("Dashboard", [] {}, true);
+    addNavigation("Registration", [this] { onRegisterStudent(); });
+    addNavigation("Student Directory", [this] { onViewStudents(); });
+    addNavigation("Academics", [this] { onAssignMarks(); });
+    addNavigation("My Residences", [this] { onViewResidenceOccupancy(); });
+    addNavigation("Campus Sports", [this] { onViewSports(); });
+    addNavigation("My Exams", [this] { onViewExamSchedule(); });
+    addNavigation("My Profile", [this] { onViewSystemInfo(); });
+    sidebarLayout->addStretch();
+    addNavigation("Sign out", [this] { onBackToMenu(); });
+
+    auto *content = new QWidget();
+    content->setObjectName("portalContent");
+    auto *contentLayout = new QVBoxLayout(content);
+    contentLayout->setContentsMargins(30, 24, 30, 28);
+    contentLayout->setSpacing(16);
+
+    auto *utilityRow = new QHBoxLayout();
+    auto *portalLabel = new QLabel("Student portal");
+    portalLabel->setObjectName("portalLabel");
+    auto *helpButton = new QPushButton("?");
+    helpButton->setObjectName("utilityButton");
+    helpButton->setToolTip("Help and support");
+    auto *profileButton = new QPushButton("KM");
+    profileButton->setObjectName("utilityButton");
+    profileButton->setToolTip("My profile");
+    utilityRow->addWidget(portalLabel);
+    utilityRow->addStretch();
+    utilityRow->addWidget(helpButton);
+    utilityRow->addWidget(profileButton);
+    contentLayout->addLayout(utilityRow);
+
+    auto *heading = new QLabel("Dashboard");
+    heading->setObjectName("dashboardHeading");
+    contentLayout->addWidget(heading);
+    auto *accent = new QFrame();
+    accent->setObjectName("headingAccent");
+    accent->setFixedSize(180, 4);
+    contentLayout->addWidget(accent);
+    auto *subtitle = new QLabel("Welcome back. Here is your university overview.");
+    subtitle->setObjectName("dashboardSubtitle");
+    contentLayout->addWidget(subtitle);
+    contentLayout->addSpacing(4);
+
+    auto createCard = [](const QString &title) {
+        auto *card = new QFrame();
+        card->setObjectName("portalCard");
+        auto *layout = new QVBoxLayout(card);
+        layout->setContentsMargins(18, 16, 18, 16);
+        layout->setSpacing(10);
+        auto *cardTitle = new QLabel(title);
+        cardTitle->setObjectName("cardTitle");
+        layout->addWidget(cardTitle);
+        return card;
+    };
+
+    auto *dashboardGrid = new QGridLayout();
+    dashboardGrid->setHorizontalSpacing(18);
+    dashboardGrid->setVerticalSpacing(18);
+
+    auto *calendarCard = createCard("Calendar");
+    auto *calendarLayout = qobject_cast<QVBoxLayout *>(calendarCard->layout());
+    auto *calendarHeader = new QHBoxLayout();
+    auto *dateLabel = new QLabel(QDate::currentDate().toString("dddd, d MMMM yyyy"));
+    dateLabel->setObjectName("calendarDate");
+    auto *viewAll = new QPushButton("View all");
+    viewAll->setObjectName("linkButton");
+    connect(viewAll, &QPushButton::clicked, this, &MainWindow::onViewExamSchedule);
+    calendarHeader->addWidget(dateLabel);
+    calendarHeader->addStretch();
+    calendarHeader->addWidget(viewAll);
+    calendarLayout->addLayout(calendarHeader);
+
+    auto *calendarBody = new QFrame();
+    calendarBody->setObjectName("calendarBody");
+    auto *calendarRows = new QVBoxLayout(calendarBody);
+    calendarRows->setContentsMargins(0, 0, 0, 0);
+    calendarRows->setSpacing(0);
+    const QStringList times = {"All day", "08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00"};
+    for (const QString &time : times) {
+        auto *row = new QLabel(time);
+        row->setObjectName("calendarRow");
+        row->setMinimumHeight(35);
+        row->setContentsMargins(12, 0, 0, 0);
+        calendarRows->addWidget(row);
+    }
+    calendarLayout->addWidget(calendarBody, 1);
+    auto *legend = new QLabel("● Registration     ● Academics     ● Residence     ● Campus life");
+    legend->setObjectName("calendarLegend");
+    calendarLayout->addWidget(legend);
+    dashboardGrid->addWidget(calendarCard, 0, 0, 2, 1);
+
+    auto *updatesCard = createCard("Updates");
+    auto *updatesLayout = qobject_cast<QVBoxLayout *>(updatesCard->layout());
+    auto *updatesTabs = new QTabWidget();
+    updatesTabs->setObjectName("updatesTabs");
+    auto *notifications = new QLabel("You currently have no new notifications.");
+    notifications->setObjectName("emptyState");
+    notifications->setWordWrap(true);
+    auto *holds = new QLabel("There are no holds on your student account.");
+    holds->setObjectName("emptyState");
+    holds->setWordWrap(true);
+    auto *news = new QLabel("Registration services and academic records are available from the navigation menu.");
+    news->setObjectName("emptyState");
+    news->setWordWrap(true);
+    updatesTabs->addTab(notifications, "Notifications");
+    updatesTabs->addTab(holds, "Holds");
+    updatesTabs->addTab(news, "News");
+    updatesLayout->addWidget(updatesTabs, 1);
+    dashboardGrid->addWidget(updatesCard, 0, 1);
+
+    auto *actionsCard = createCard("Quick actions");
+    auto *actionsLayout = qobject_cast<QVBoxLayout *>(actionsCard->layout());
+    auto *actionGrid = new QGridLayout();
+    actionGrid->setSpacing(10);
+    const std::vector<std::pair<QString, std::function<void()>>> actions = {
+        {"Register student", [this] { onRegisterStudent(); }},
+        {"View students", [this] { onViewStudents(); }},
+        {"Assign marks", [this] { onAssignMarks(); }},
+        {"View residence", [this] { onViewResidenceOccupancy(); }}
+    };
+    for (int i = 0; i < static_cast<int>(actions.size()); ++i) {
+        auto *button = new QPushButton(actions[i].first);
+        button->setObjectName("quickAction");
+        button->setMinimumHeight(42);
+        connect(button, &QPushButton::clicked, this, actions[i].second);
+        actionGrid->addWidget(button, i / 2, i % 2);
+    }
+    actionsLayout->addLayout(actionGrid);
+    dashboardGrid->addWidget(actionsCard, 1, 1);
+
+    dashboardGrid->setColumnStretch(0, 6);
+    dashboardGrid->setColumnStretch(1, 5);
+    dashboardGrid->setRowStretch(0, 3);
+    dashboardGrid->setRowStretch(1, 1);
+    contentLayout->addLayout(dashboardGrid, 1);
+
+    rootLayout->addWidget(sidebar);
+    rootLayout->addWidget(content, 1);
+    stackedWidget->addWidget(menuWidget);
+}
+
+void MainWindow::setupLegacyMenu() {
     menuWidget = new QWidget();
     QVBoxLayout *mainLayout = new QVBoxLayout(menuWidget);
     mainLayout->setContentsMargins(20, 20, 20, 20);
@@ -408,46 +593,41 @@ void MainWindow::setupMainMenu() {
 void MainWindow::applyStylesheet() {
     qApp->setStyle(QStyleFactory::create("Fusion"));
     
-    // Apply global stylesheet for all widgets
-    QString globalStylesheet = 
-        "QLineEdit { "
-        "    color: #000000; "
-        "    background-color: #FFFFFF; "
-        "    border: 1px solid #CCCCCC; "
-        "    padding: 5px; "
-        "    selection-background-color: #1a5490; "
-        "} "
-        "QLineEdit:focus { "
-        "    border: 2px solid #1a5490; "
-        "} "
-        "QTextEdit { "
-        "    color: #000000; "
-        "    background-color: #FFFFFF; "
-        "    border: 1px solid #CCCCCC; "
-        "} "
-        "QWidget { "
-        "    background-color: #f5f5fa; "
-        "    color: #000000; "
-        "} "
-        "QPushButton { "
-        "    background-color: #e0e0e6; "
-        "    color: #000000; "
-        "    border: 1px solid #999999; "
-        "    padding: 5px; "
-        "    border-radius: 3px; "
-        "} "
-        "QPushButton:hover { "
-        "    background-color: #d0d0d6; "
-        "} "
-        "QPushButton:pressed { "
-        "    background-color: #c0c0c6; "
-        "} "
-        "QLabel { "
-        "    color: #000000; "
-        "} "
-        "QDialog { "
-        "    background-color: #f5f5fa; "
-        "} ";
+    QString globalStylesheet = R"(
+        QWidget { color: #303039; font-family: "Segoe UI", "Arial", sans-serif; }
+        QWidget#portalRoot, QWidget#portalContent { background: #f5f5f7; }
+        QFrame#sidebar { background: #ffffff; border-right: 1px solid #e5e5e9; }
+        QLabel#brandMark { background: #6f168d; color: white; border-radius: 16px; font-size: 30px; font-weight: 800; }
+        QLabel#brandText { color: #6f168d; font-size: 21px; font-weight: 700; letter-spacing: 1px; }
+        QLabel#brandText small { color: #7c7c84; font-size: 8px; letter-spacing: 2px; }
+        QPushButton#navButton, QPushButton#navButtonActive { border: 0; border-radius: 6px; padding: 0 12px; text-align: left; font-size: 14px; }
+        QPushButton#navButton { background: transparent; color: #68717d; }
+        QPushButton#navButton:hover { background: #f2edf5; color: #6f168d; }
+        QPushButton#navButtonActive { background: #f0e7f4; color: #6f168d; font-weight: 700; border-left: 3px solid #6f168d; }
+        QLabel#portalLabel { color: #8a8a92; font-size: 13px; }
+        QPushButton#utilityButton { min-width: 34px; max-width: 34px; min-height: 34px; max-height: 34px; border: 0; border-radius: 7px; background: #e4e4e7; color: #6f168d; font-weight: 700; }
+        QPushButton#utilityButton:hover { background: #d8c7e1; }
+        QLabel#dashboardHeading { color: #34343a; font-size: 42px; font-weight: 800; }
+        QFrame#headingAccent { background: #6f3b95; }
+        QLabel#dashboardSubtitle { color: #55555d; font-size: 15px; }
+        QFrame#portalCard { background: white; border: 1px solid #e5e4e8; border-radius: 12px; }
+        QLabel#cardTitle { color: #2f3036; font-size: 20px; font-weight: 700; }
+        QLabel#calendarDate { color: #34343a; font-size: 14px; font-weight: 600; }
+        QPushButton#linkButton { border: 0; background: transparent; color: #008fbd; font-weight: 700; padding: 4px; }
+        QPushButton#linkButton:hover { color: #6f168d; }
+        QFrame#calendarBody { border: 1px solid #ededf0; background: #ffffff; }
+        QLabel#calendarRow { color: #50515a; border-bottom: 1px solid #eeeeef; font-size: 13px; }
+        QLabel#calendarLegend { color: #6f168d; font-size: 12px; padding-top: 4px; }
+        QTabWidget#updatesTabs::pane { border: 0; border-top: 1px solid #dddddf; }
+        QTabBar::tab { background: transparent; color: #777780; padding: 8px 16px; font-size: 14px; }
+        QTabBar::tab:selected { color: #6f168d; border-bottom: 3px solid #00a2c7; font-weight: 700; }
+        QLabel#emptyState { color: #4e4f57; padding: 16px 10px; font-size: 14px; }
+        QPushButton#quickAction { background: #f7f3f9; color: #6f168d; border: 1px solid #dfd1e7; border-radius: 6px; font-weight: 600; padding: 7px; }
+        QPushButton#quickAction:hover { background: #e9dcee; }
+        QLineEdit { color: #202027; background-color: #ffffff; border: 1px solid #c9c9d0; border-radius: 4px; padding: 6px; selection-background-color: #6f168d; }
+        QLineEdit:focus { border: 2px solid #6f168d; }
+        QDialog { background-color: #f5f5f7; }
+    )";
     
     qApp->setStyleSheet(globalStylesheet);
 }
