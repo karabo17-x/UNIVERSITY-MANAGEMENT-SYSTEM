@@ -15,24 +15,32 @@ StudentRegistrationDialog::StudentRegistrationDialog(Administration* admin, QWid
     : QDialog(parent), admin(admin) {
     setWindowTitle("Register New Student");
     setModal(true);
-    setGeometry(200, 200, 500, 450);
+    setWindowFlag(Qt::WindowContextHelpButtonHint, false);
+    setFixedSize(560, 460);
+    setObjectName("studentRegistrationDialog");
     setupUI();
 }
 
 void StudentRegistrationDialog::setupUI() {
     QVBoxLayout* mainLayout = new QVBoxLayout(this);
+    mainLayout->setContentsMargins(28, 26, 28, 24);
+    mainLayout->setSpacing(14);
     
     QLabel* titleLabel = new QLabel("Student Registration Form");
-    titleLabel->setStyleSheet("font-size: 14px; font-weight: bold;");
+    titleLabel->setObjectName("dialogTitle");
     mainLayout->addWidget(titleLabel);
     mainLayout->addSpacing(10);
     
     QGridLayout* gridLayout = new QGridLayout();
+    gridLayout->setHorizontalSpacing(12);
+    gridLayout->setVerticalSpacing(9);
+    gridLayout->setColumnStretch(1, 1);
     
-    // Helper lambda to setup QLineEdit with both stylesheet and palette
+    // Keep input fields readable regardless of the desktop theme.
     auto setupLineEdit = [](QLineEdit* edit) {
-        edit->setStyleSheet("QLineEdit { color: #000000; background-color: #FFFFFF; border: 1px solid #CCCCCC; padding: 5px; }");
-        edit->setFont(QFont("DejaVu Sans", 11));
+        edit->setMinimumHeight(34);
+        edit->setStyleSheet("QLineEdit { color: #282832; background: #ffffff; border: 1px solid #cfc9d5; border-radius: 5px; padding: 0 9px; } QLineEdit:focus { border: 2px solid #6f168d; }");
+        edit->setFont(QFont("Segoe UI", 10));
         QPalette palette;
         palette.setColor(QPalette::Text, QColor(0, 0, 0));
         palette.setColor(QPalette::Base, QColor(255, 255, 255));
@@ -82,17 +90,28 @@ void StudentRegistrationDialog::setupUI() {
     buttonLayout->addStretch();
     
     QPushButton* registerButton = new QPushButton("Register");
-    registerButton->setMinimumWidth(100);
-    registerButton->setStyleSheet("QPushButton { background-color: #1a5490; color: white; padding: 5px; }");
+    registerButton->setMinimumSize(112, 38);
+    registerButton->setObjectName("primaryDialogButton");
     connect(registerButton, &QPushButton::clicked, this, &StudentRegistrationDialog::onRegister);
     buttonLayout->addWidget(registerButton);
     
     QPushButton* cancelButton = new QPushButton("Cancel");
-    cancelButton->setMinimumWidth(100);
+    cancelButton->setMinimumSize(100, 38);
+    cancelButton->setObjectName("secondaryDialogButton");
     connect(cancelButton, &QPushButton::clicked, this, &StudentRegistrationDialog::onCancel);
     buttonLayout->addWidget(cancelButton);
     
     mainLayout->addLayout(buttonLayout);
+
+    setStyleSheet(R"(
+        QDialog#studentRegistrationDialog { background: #f8f7fa; }
+        QLabel { color: #30303a; font-size: 14px; }
+        QLabel#dialogTitle { color: #6f168d; font-size: 21px; font-weight: 700; padding-bottom: 4px; }
+        QPushButton#primaryDialogButton { background: #6f168d; color: white; border: 0; border-radius: 5px; font-weight: 700; }
+        QPushButton#primaryDialogButton:hover { background: #581270; }
+        QPushButton#secondaryDialogButton { background: #ffffff; color: #4d4d58; border: 1px solid #bdb9c4; border-radius: 5px; font-weight: 600; }
+        QPushButton#secondaryDialogButton:hover { background: #f0edf3; border-color: #6f168d; color: #6f168d; }
+    )");
 }
 
 bool StudentRegistrationDialog::validateInputs() {
