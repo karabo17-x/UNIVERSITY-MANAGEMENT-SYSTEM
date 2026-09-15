@@ -83,6 +83,7 @@ private:
     // Setup methods
     void setupWelcomeScreen();
     void setupMainMenu();
+    void setupLegacyMenu();
     void createMenuButtons();
     void applyStylesheet();
 
