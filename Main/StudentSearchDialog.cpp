@@ -53,15 +53,6 @@ void StudentSearchDialog::setupUI() {
     buttonLayout->addWidget(closeButton);
     
     mainLayout->addLayout(buttonLayout);
-
-    // Log search edit properties for debugging
-    qDebug() << "searchEdit properties:" 
-             << "text=" << searchEdit->text()
-             << "echoMode=" << searchEdit->echoMode()
-             << "inputMask=" << searchEdit->inputMask()
-             << "readOnly=" << searchEdit->isReadOnly()
-             << "fontFamily=" << searchEdit->font().family()
-             << "fontPointSize=" << searchEdit->font().pointSizeF();
 }
 
 void StudentSearchDialog::onSearch() {
