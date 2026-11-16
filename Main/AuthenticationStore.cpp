@@ -57,3 +57,17 @@ AuthenticationStore::AuthenticationStore(const QString &databasePath) {
         "CREATE TABLE IF NOT EXISTS accounts ("
         " username TEXT PRIMARY KEY COLLATE NOCASE,"
         " full_name TEXT NOT NULL,"
+        " role TEXT NOT NULL CHECK(role IN ('student','lecturer','administrator','registrar','residence','sports'))," 
+        " linked_id TEXT NOT NULL DEFAULT '',"
+        " password_salt TEXT NOT NULL,"
+        " password_hash TEXT NOT NULL,"
+        " created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP"
+        ");";
+    char *message = nullptr;
+    if (sqlite3_exec(database, schema, nullptr, nullptr, &message) != SQLITE_OK) {
+        errorMessage = QString::fromUtf8(message ? message : sqlite3_errmsg(database));
+        sqlite3_free(message);
+        sqlite3_close(database);
+        database = nullptr;
+        return;
+    }
