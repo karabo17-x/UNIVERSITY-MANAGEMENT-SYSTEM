@@ -1527,6 +1527,19 @@ void MainWindow::onViewExamSectionDetails() {
     for (const auto &entry : examSchedules) if (!entry.second->getExamSections().empty()) available.append(QString::fromStdString(entry.first));
     if (available.isEmpty()) { QMessageBox::information(this, "Exam section details", "No exam sections have been created yet."); return; }
     bool ok = false;
+    const QString department = QInputDialog::getItem(this, "Exam section details", "Department:", available, 0, false, &ok);
+    if (!ok || department.isEmpty()) return;
+    ExamSchedule *schedule = examSchedules.at(department.toStdString());
+    QStringList sectionIds;
+    for (auto *section : schedule->getExamSections()) sectionIds.append(QString::fromStdString(section->getSectionId()));
+    const QString sectionId = QInputDialog::getItem(this, "Exam section details", "Section:", sectionIds, 0, false, &ok);
+    if (!ok || sectionId.isEmpty()) return;
+    ExamSection *section = schedule->getExamSectionById(sectionId.toStdString());
+    QStringList details = {QString::fromStdString(section->getSectionName()),
+        QString("Department: %1 | Invigilator: %2").arg(department, QString::fromStdString(section->getInvigilator())),
+        QString("Room: %1 | Enrollment: %2/%3").arg(QString::fromStdString(section->getRoomNumber())).arg(section->getEnrolledCount()).arg(section->getCapacity()),
+        "Exams:"};
+    for (auto *exam : section->getExams()) details.append(QString("%1 — %2 | %3 %4 | %5 minutes | %6 marks | %7")
 }
 
 void MainWindow::onViewSystemInfo() {
