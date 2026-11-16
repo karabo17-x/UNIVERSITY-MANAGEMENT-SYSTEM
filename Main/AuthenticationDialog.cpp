@@ -86,3 +86,15 @@ bool AuthenticationDialog::run(AuthenticationStore *store, AuthenticatedUser *us
             authenticated = {username->text().trimmed().toLower(), fullName->text().trimmed(), "administrator", {}};
         } else if (!store->authenticate(username->text(), password->text(), &authenticated, &error)) {
             status->setText(error);
+            password->clear();
+            password->setFocus();
+            return;
+        }
+        dialog.accept();
+    });
+
+    if (firstRun) fullName->setFocus(); else username->setFocus();
+    if (dialog.exec() != QDialog::Accepted) return false;
+    if (user) *user = authenticated;
+    return true;
+}
