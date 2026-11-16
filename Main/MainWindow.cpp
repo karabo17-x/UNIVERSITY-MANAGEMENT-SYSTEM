@@ -302,25 +302,19 @@ void MainWindow::setupMainMenu() {
     auto *helpButton = new QPushButton("?");
     helpButton->setObjectName("utilityButton");
     helpButton->setToolTip("Help and support");
-    auto *profileButton = new QPushButton("KM");
-    profileButton->setObjectName("utilityButton");
-    profileButton->setToolTip("My profile");
     utilityRow->addWidget(portalLabel);
     utilityRow->addStretch();
     utilityRow->addWidget(helpButton);
-    utilityRow->addWidget(profileButton);
     contentLayout->addLayout(utilityRow);
 
-    auto *heading = new QLabel("Dashboard");
-    heading->setObjectName("dashboardHeading");
-    contentLayout->addWidget(heading);
+    dashboardHeadingLabel = new QLabel("Student dashboard");
+    dashboardHeadingLabel->setObjectName("dashboardHeading");
+    contentLayout->addWidget(dashboardHeadingLabel);
     auto *accent = new QFrame();
     accent->setObjectName("headingAccent");
     accent->setFixedSize(180, 4);
     contentLayout->addWidget(accent);
-    auto *subtitle = new QLabel("Welcome back. Here is your university overview.");
-    subtitle->setObjectName("dashboardSubtitle");
-    contentLayout->addWidget(subtitle);
+    dashboardSubtitleLabel = new QLabel("Your registration, campus life and academic information.");
     contentLayout->addSpacing(4);
 
     auto createCard = [](const QString &title) {
