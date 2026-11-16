@@ -168,3 +168,17 @@ bool AuthenticationStore::createAccount(const QString &username, const QString &
         return false;
     }
     return true;
+}
+
+bool AuthenticationStore::authenticate(const QString &username, const QString &password,
+                                       AuthenticatedUser *user, QString *error) const {
+    if (!database) { setError(error, errorMessage); return false; }
+    sqlite3_stmt *statement = nullptr;
+    const char *sql = "SELECT username,full_name,role,linked_id,password_salt,password_hash FROM accounts WHERE username=?";
+    if (sqlite3_prepare_v2(database, sql, -1, &statement, nullptr) != SQLITE_OK) {
+        setError(error, QString::fromUtf8(sqlite3_errmsg(database)));
+        return false;
+    }
+    const QByteArray lookup = normalizedUsername(username).toUtf8();
+    sqlite3_bind_text(statement, 1, lookup.constData(), lookup.size(), SQLITE_TRANSIENT);
+    if (sqlite3_step(statement) != SQLITE_ROW) {
