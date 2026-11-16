@@ -970,6 +970,20 @@ void MainWindow::onAddFaculty() {
         return;
     }
     const QString phone = QInputDialog::getText(this, "Add faculty", "Phone number:", QLineEdit::Normal, {}, &ok).trimmed();
+    if (!ok || phone.isEmpty()) return;
+    QStringList departmentNames;
+    for (auto *department : admin->getDepartments()) departmentNames.append(QString::fromStdString(department->getDepartmentName()));
+    const QString departmentName = QInputDialog::getItem(this, "Add faculty", "Department:", departmentNames, 0, false, &ok);
+    if (!ok || departmentName.isEmpty()) return;
+    const QString designation = QInputDialog::getText(this, "Add faculty", "Designation:", QLineEdit::Normal, {}, &ok).trimmed();
+    if (!ok || designation.isEmpty()) return;
+    const double salary = QInputDialog::getDouble(this, "Add faculty", "Monthly salary (R):", 30000.0, 0.0, 10000000.0, 2, &ok);
+    if (!ok) return;
+    auto *member = new Faculty(id.toStdString(), name.toStdString(), email.toStdString(), phone.toStdString(),
+                               employeeId.toStdString(), departmentName.toStdString(), designation.toStdString(), salary);
+    admin->addFaculty(member);
+    faculty.push_back(member);
+    for (auto *department : admin->getDepartments()) {
 }
 
 void MainWindow::onViewFaculty() {
