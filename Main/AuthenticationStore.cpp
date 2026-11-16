@@ -195,3 +195,17 @@ bool AuthenticationStore::authenticate(const QString &username, const QString &p
     const QString role = textColumn(2);
     const QString linkedId = textColumn(3);
     const QByteArray salt = QByteArray::fromHex(textColumn(4).toLatin1());
+    const QByteArray expected = QByteArray::fromHex(textColumn(5).toLatin1());
+    sqlite3_finalize(statement);
+    QByteArray candidate;
+    if (salt.size() != SaltLength || expected.size() != HashLength || !derivePasswordHash(password, salt, &candidate) ||
+        CRYPTO_memcmp(candidate.constData(), expected.constData(), HashLength) != 0) {
+        setError(error, "Username or password is incorrect.");
+        return false;
+    }
+    if (user) *user = {storedUsername, fullName, role, linkedId};
+    return true;
+}
+
+bool AuthenticationStore::changePassword(const QString &username, const QString &currentPassword,
+                                         const QString &newPassword, QString *error) {
