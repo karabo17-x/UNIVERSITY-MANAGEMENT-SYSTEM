@@ -444,6 +444,20 @@ void MainWindow::resizeEvent(QResizeEvent *event) {
     updateResponsiveLayout();
 }
 
+void MainWindow::updateResponsiveLayout() {
+    if (!sidebarWidget || !compactNavigation || !dashboardGrid || !calendarCard || !updatesCard || !actionsCard) return;
+    const bool compact = width() < 900;
+    sidebarWidget->setVisible(!compact);
+    compactNavigation->setVisible(compact);
+    while (QLayoutItem *item = dashboardGrid->takeAt(0)) delete item;
+    if (compact) {
+        dashboardGrid->addWidget(calendarCard, 0, 0);
+        dashboardGrid->addWidget(updatesCard, 1, 0);
+        dashboardGrid->addWidget(actionsCard, 2, 0);
+        dashboardGrid->setColumnStretch(0, 1);
+        dashboardGrid->setColumnStretch(1, 0);
+        dashboardGrid->setRowStretch(0, 1);
+        dashboardGrid->setRowStretch(1, 0);
 }
 
 void MainWindow::setupLegacyMenu() {
