@@ -1495,10 +1495,22 @@ void MainWindow::onEnrollExamSection() {
     if (section->isStudentEnrolled(studentId.toStdString())) { QMessageBox::information(this, "Already enrolled", "This student is already in the selected section."); return; }
     if (section->getEnrolledCount() >= section->getCapacity()) { QMessageBox::warning(this, "Section full", "This exam section has reached capacity."); return; }
     section->enrollStudent(studentId.toStdString());
+    QMessageBox::information(this, "Enrollment complete", QString("Student %1 is enrolled in %2.").arg(studentId, sectionId));
 }
 
 void MainWindow::onViewExamSchedule() {
-    QMessageBox::information(this, "Exam Schedule", "Exam schedule viewing feature available.");
+    QStringList available;
+    for (const auto &entry : examSchedules) available.append(QString::fromStdString(entry.first));
+    if (available.isEmpty()) { QMessageBox::information(this, "Exam schedule", "No exam schedules have been created yet."); return; }
+    bool ok = false;
+    const QString department = QInputDialog::getItem(this, "View exam schedule", "Department:", available, 0, false, &ok);
+    if (!ok || department.isEmpty()) return;
+    ExamSchedule *schedule = examSchedules.at(department.toStdString());
+    QStringList rows;
+    for (auto *section : schedule->getExamSections()) {
+        rows.append(QString("%1 — %2 | Room %3 | %4/%5 enrolled | Invigilator: %6")
+            .arg(QString::fromStdString(section->getSectionId()), QString::fromStdString(section->getSectionName()),
+                 QString::fromStdString(section->getRoomNumber()))
 }
 
 void MainWindow::onViewExamSectionDetails() {
