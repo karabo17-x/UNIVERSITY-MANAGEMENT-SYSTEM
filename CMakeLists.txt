@@ -9,6 +9,8 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets)
+find_package(SQLite3 REQUIRED)
+find_package(OpenSSL REQUIRED COMPONENTS Crypto)
 
 set(UMS_CORE_SOURCES
     Person/Person.cpp
@@ -35,12 +37,16 @@ add_executable(university_system
     Main/StudentRegistrationDialog.cpp
     Main/StudentSearchDialog.cpp
     Main/GenericListDialog.cpp
+    Main/AuthenticationStore.cpp
+    Main/AuthenticationDialog.cpp
     Main/MainWindow.h
     Main/StudentRegistrationDialog.h
     Main/StudentSearchDialog.h
     Main/GenericListDialog.h
+    Main/AuthenticationStore.h
+    Main/AuthenticationDialog.h
 )
-target_link_libraries(university_system PRIVATE ums_core Qt6::Gui Qt6::Widgets)
+target_link_libraries(university_system PRIVATE ums_core Qt6::Gui Qt6::Widgets SQLite3::SQLite3 OpenSSL::Crypto)
 
 if(MSVC)
     target_compile_options(ums_core PRIVATE /W4)

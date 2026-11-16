@@ -5,13 +5,13 @@
 #include <QMessageBox>
 #include <QPalette>
 #include <QColor>
-#include <QDebug>
 
 StudentSearchDialog::StudentSearchDialog(Administration* admin, QWidget* parent)
     : QDialog(parent), admin(admin) {
     setWindowTitle("Search Student");
     setModal(true);
-    setGeometry(200, 200, 500, 300);
+    resize(500, 340);
+    setMinimumSize(380, 280);
     setupUI();
 }
 
@@ -32,7 +32,6 @@ void StudentSearchDialog::setupUI() {
     searchPalette.setColor(QPalette::Text, QColor(0, 0, 0));
     searchPalette.setColor(QPalette::Base, QColor(255, 255, 255));
     searchEdit->setPalette(searchPalette);
-    connect(searchEdit, &QLineEdit::textChanged, this, [](const QString &s){ qDebug() << "searchEdit:textChanged:" << s << "hex:" << s.toUtf8().toHex(); });
     searchLayout->addWidget(searchEdit);
     
     QPushButton* searchButton = new QPushButton("Search");
@@ -54,15 +53,6 @@ void StudentSearchDialog::setupUI() {
     buttonLayout->addWidget(closeButton);
     
     mainLayout->addLayout(buttonLayout);
-
-    // Log search edit properties for debugging
-    qDebug() << "searchEdit properties:" 
-             << "text=" << searchEdit->text()
-             << "echoMode=" << searchEdit->echoMode()
-             << "inputMask=" << searchEdit->inputMask()
-             << "readOnly=" << searchEdit->isReadOnly()
-             << "fontFamily=" << searchEdit->font().family()
-             << "fontPointSize=" << searchEdit->font().pointSizeF();
 }
 
 void StudentSearchDialog::onSearch() {

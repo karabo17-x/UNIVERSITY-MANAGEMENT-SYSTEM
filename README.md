@@ -26,8 +26,8 @@ The University Management System is a feature-complete Qt6 application that prov
 
 **Linux**:
 ```bash
-# Install Qt6 development libraries
-sudo apt-get install qt6-base-dev qt6-tools-dev
+# Install Qt6, SQLite and OpenSSL development libraries
+sudo apt-get install qt6-base-dev qt6-tools-dev libsqlite3-dev libssl-dev
 
 # Install CMake
 sudo apt-get install cmake make g++
@@ -98,6 +98,16 @@ Or if using Makefile:
 ```cmd
 university_system.exe
 ```
+
+## Accounts and Access
+
+The application now authenticates users instead of letting them choose a role in the portal. On first launch, create the initial administrator account. That administrator can create accounts for students, lecturers, registrars, residence staff and sports coordinators from **Manage accounts**. Student and lecturer accounts must be linked to an existing student ID or employee ID. Users sign out and authenticate again to change sessions; the role is read from the stored account.
+
+Account credentials are stored in a local SQLite database under Qt's application data directory. Passwords are salted and derived with PBKDF2-HMAC-SHA256; the database file is restricted to the current OS user where supported. Users can change their own password from **My account**.
+
+The current university records (students, faculty, residence assignments, sports affiliations and exam schedules) are still held in memory by the existing domain model. Only accounts and credentials persist across restarts, so linked academic records need database persistence before this is ready for a live university deployment.
+
+The CMake build requires Qt6, SQLite3 and OpenSSL development packages. The Makefile build also links against SQLite3 and OpenSSL.
 
 ## Project Structure
 

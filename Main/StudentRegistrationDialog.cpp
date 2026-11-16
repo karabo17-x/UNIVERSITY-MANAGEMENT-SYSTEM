@@ -8,6 +8,7 @@
 #include <QPalette>
 #include <QColor>
 #include <QFont>
+#include <QDoubleValidator>
 #include <memory>
 #include "../Student/Student.h"
 
@@ -16,7 +17,8 @@ StudentRegistrationDialog::StudentRegistrationDialog(Administration* admin, QWid
     setWindowTitle("Register New Student");
     setModal(true);
     setWindowFlag(Qt::WindowContextHelpButtonHint, false);
-    setFixedSize(560, 460);
+    resize(560, 460);
+    setMinimumSize(420, 400);
     setObjectName("studentRegistrationDialog");
     setupUI();
 }
@@ -80,6 +82,9 @@ void StudentRegistrationDialog::setupUI() {
     gridLayout->addWidget(new QLabel("GPA:"), 6, 0);
     gpaEdit = new QLineEdit("0.0");
     setupLineEdit(gpaEdit);
+    auto *gpaValidator = new QDoubleValidator(0.0, 4.0, 2, gpaEdit);
+    gpaValidator->setNotation(QDoubleValidator::StandardNotation);
+    gpaEdit->setValidator(gpaValidator);
     gridLayout->addWidget(gpaEdit, 6, 1);
     
     mainLayout->addLayout(gridLayout);
@@ -129,6 +134,12 @@ bool StudentRegistrationDialog::validateInputs() {
     }
     if (phoneEdit->text().isEmpty()) {
         QMessageBox::warning(this, "Validation Error", "Phone is required.");
+        return false;
+    }
+    bool validGpa = false;
+    const double gpa = gpaEdit->text().toDouble(&validGpa);
+    if (!validGpa || gpa < 0.0 || gpa > 4.0) {
+        QMessageBox::warning(this, "Validation Error", "GPA must be a number between 0.0 and 4.0.");
         return false;
     }
     return true;

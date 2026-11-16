@@ -1,4 +1,5 @@
 #include "MainWindow.h"
+#include "AuthenticationDialog.h"
 #include <QApplication>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
@@ -14,6 +15,11 @@
 #include <QDate>
 #include <QFrame>
 #include <QTabWidget>
+#include <QResizeEvent>
+#include <QRegularExpression>
+#include <QTime>
+#include <QStandardPaths>
+#include <QDir>
 #include <functional>
 
 MainWindow::MainWindow(QWidget *parent)
@@ -23,7 +29,7 @@ MainWindow::MainWindow(QWidget *parent)
     setWindowTitle("University Management System");
     setWindowIcon(style()->standardIcon(QStyle::SP_FileDialogDetailedView));
     setGeometry(80, 60, 1240, 820);
-    setMinimumSize(980, 680);
+    setMinimumSize(640, 480);
     
     // Initialize business logic
     initializeSystemData();
@@ -35,6 +41,8 @@ MainWindow::MainWindow(QWidget *parent)
     // Setup screens
     setupWelcomeScreen();
     setupMainMenu();
+    const QString accountDirectory = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+    authenticationStore = new AuthenticationStore(QDir(accountDirectory).filePath("university_accounts.sqlite"));
     
     // Apply stylesheet
     applyStylesheet();
@@ -55,6 +63,19 @@ MainWindow::~MainWindow() {
     if (academicAdmin) delete academicAdmin;
     if (hostelA) delete hostelA;
     if (sportsAffiliation) delete sportsAffiliation;
+    for (auto &schedule : examSchedules) delete schedule.second;
+    delete authenticationStore;
+}
+
+bool MainWindow::authenticateSession() {
+    AuthenticatedUser user;
+    if (!AuthenticationDialog::run(authenticationStore, &user, this)) return false;
+    currentUser = user;
+    activeRoleIndex = roleIndexForCode(user.role);
+    activeRoleMask = 1 << activeRoleIndex;
+    applyRoleView();
+    stackedWidget->setCurrentWidget(menuWidget);
+    return true;
 }
 
 void MainWindow::initializeSystemData() {
@@ -72,22 +93,25 @@ void MainWindow::initializeSystemData() {
     departments.push_back(new Engineering("DEPT006", "Dr. Robert Davis"));
     departments.push_back(new InformationTechnology("DEPT007", "Dr. Lisa Anderson"));
     departments.push_back(new Cybersecurity("DEPT008", "Prof. David Martinez"));
+    for (auto *department : departments) admin->addDepartment(department);
 }
 
 void MainWindow::setupWelcomeScreen() {
     welcomeWidget = new QWidget();
+    welcomeWidget->setObjectName("welcomeScreen");
+    welcomeWidget->setStyleSheet("QWidget#welcomeScreen { background-color: #f5f7fb; }");
     QVBoxLayout *layout = new QVBoxLayout(welcomeWidget);
     layout->setContentsMargins(40, 40, 40, 40);
     layout->setSpacing(20);
     
     // Title
     QLabel *mainTitle = new QLabel("Welcome to University Management System");
-    mainTitle->setStyleSheet("font-size: 32px; font-weight: bold; color: #1a5490;");
+    mainTitle->setStyleSheet("font-size: 32px; font-weight: bold; color: #174f83;");
     mainTitle->setAlignment(Qt::AlignCenter);
     
     // Subtitle
     QLabel *subtitle = new QLabel("Professional Management Solution for Higher Education");
-    subtitle->setStyleSheet("font-size: 16px; color: #555555;");
+    subtitle->setStyleSheet("font-size: 16px; color: #4b5563;");
     subtitle->setAlignment(Qt::AlignCenter);
     
     // Description
@@ -101,7 +125,7 @@ void MainWindow::setupWelcomeScreen() {
         "• Examination Scheduling and Management\n\n"
         "Click 'Enter System' to access the management dashboard."
     );
-    description->setStyleSheet("font-size: 13px; color: #333333; line-height: 1.6;");
+    description->setStyleSheet("font-size: 14px; color: #374151; line-height: 1.6;");
     description->setAlignment(Qt::AlignCenter);
     description->setWordWrap(true);
     
@@ -168,6 +192,7 @@ void MainWindow::setupWelcomeScreen() {
     
     layout->addLayout(buttonLayout);
     layout->addStretch();
+    stackedWidget->addWidget(welcomeWidget);
 }
 
 void MainWindow::setupMainMenu() {
@@ -180,7 +205,13 @@ void MainWindow::setupMainMenu() {
 
     auto *sidebar = new QFrame();
     sidebar->setObjectName("sidebar");
-    sidebar->setFixedWidth(230);
+    auto *sidebarScroll = new QScrollArea();
+    sidebarScroll->setObjectName("sidebarScroll");
+    sidebarScroll->setWidgetResizable(true);
+    sidebarScroll->setFrameShape(QFrame::NoFrame);
+    sidebarScroll->setFixedWidth(230);
+    sidebarScroll->setWidget(sidebar);
+    sidebarWidget = sidebarScroll;
     auto *sidebarLayout = new QVBoxLayout(sidebar);
     sidebarLayout->setContentsMargins(24, 25, 20, 22);
     sidebarLayout->setSpacing(5);
@@ -204,8 +235,12 @@ void MainWindow::setupMainMenu() {
         button->setObjectName(selected ? "navButtonActive" : "navButton");
         button->setCursor(Qt::PointingHandCursor);
         button->setMinimumHeight(38);
-        connect(button, &QPushButton::clicked, this, action);
+        const int allowedRoles = roleMaskForLabel(text);
+        connect(button, &QPushButton::clicked, this, [this, allowedRoles, action] {
+            if (activeRoleMask & allowedRoles) action();
+        });
         sidebarLayout->addWidget(button);
+        navigationActions.append({text, allowedRoles, action, button});
     };
 
     addNavigation("Dashboard", [] {}, true);
@@ -215,7 +250,30 @@ void MainWindow::setupMainMenu() {
     addNavigation("My Residences", [this] { onViewResidenceOccupancy(); });
     addNavigation("Campus Sports", [this] { onViewSports(); });
     addNavigation("My Exams", [this] { onViewExamSchedule(); });
-    addNavigation("My Profile", [this] { onViewSystemInfo(); });
+    addNavigation("My account", [this] { onViewMyAccount(); });
+    addNavigation("System overview", [this] { onViewSystemInfo(); });
+    addNavigation("Manage accounts", [this] { onManageAccounts(); });
+    addNavigation("Search students", [this] { onSearchStudent(); });
+    addNavigation("Deregister student", [this] { onDeregisterStudent(); });
+    addNavigation("View marks", [this] { onViewMarks(); });
+    addNavigation("Faculty", [this] { onViewFaculty(); });
+    addNavigation("Departments", [this] { onViewDepartments(); });
+    addNavigation("Assign residence", [this] { onAssignResidence(); });
+    addNavigation("Sport participants", [this] { onViewSportParticipants(); });
+    addNavigation("Exam sections", [this] { onViewExamSectionDetails(); });
+    addNavigation("Add faculty", [this] { onAddFaculty(); });
+    addNavigation("Faculty by department", [this] { onViewFacultyByDept(); });
+    addNavigation("Assign course", [this] { onAssignCourse(); });
+    addNavigation("Course mapping", [this] { onViewCourseFacultyMapping(); });
+    addNavigation("Department faculty", [this] { onViewDeptFaculty(); });
+    addNavigation("Payroll", [this] { onViewPayroll(); });
+    addNavigation("Affiliate sport", [this] { onAffiliateSport(); });
+    addNavigation("Student sports", [this] { onViewStudentSports(); });
+    addNavigation("Remove sport affiliation", [this] { onRemoveSportAffiliation(); });
+    addNavigation("Initialize exam schedule", [this] { onInitializeExamSchedule(); });
+    addNavigation("Create exam section", [this] { onCreateExamSection(); });
+    addNavigation("Add exam", [this] { onAddExam(); });
+    addNavigation("Enroll exam section", [this] { onEnrollExamSection(); });
     sidebarLayout->addStretch();
     addNavigation("Sign out", [this] { onBackToMenu(); });
 
@@ -226,30 +284,39 @@ void MainWindow::setupMainMenu() {
     contentLayout->setSpacing(16);
 
     auto *utilityRow = new QHBoxLayout();
-    auto *portalLabel = new QLabel("Student portal");
+    compactNavigation = new QComboBox();
+    compactNavigation->setObjectName("compactNavigation");
+    connect(compactNavigation, QOverload<int>::of(&QComboBox::activated), this, [this](int index) {
+        const int actionIndex = compactNavigation->itemData(index).toInt();
+        if (actionIndex >= 0 && actionIndex < navigationActions.size() &&
+            (activeRoleMask & navigationActions[actionIndex].roles)) navigationActions[actionIndex].invoke();
+        compactNavigation->setCurrentIndex(0);
+    });
+    compactNavigation->setVisible(false);
+    utilityRow->addWidget(compactNavigation);
+    sessionLabel = new QLabel();
+    sessionLabel->setObjectName("sessionLabel");
+    utilityRow->addWidget(sessionLabel);
+    portalLabel = new QLabel("Student portal");
     portalLabel->setObjectName("portalLabel");
     auto *helpButton = new QPushButton("?");
     helpButton->setObjectName("utilityButton");
     helpButton->setToolTip("Help and support");
-    auto *profileButton = new QPushButton("KM");
-    profileButton->setObjectName("utilityButton");
-    profileButton->setToolTip("My profile");
     utilityRow->addWidget(portalLabel);
     utilityRow->addStretch();
     utilityRow->addWidget(helpButton);
-    utilityRow->addWidget(profileButton);
     contentLayout->addLayout(utilityRow);
 
-    auto *heading = new QLabel("Dashboard");
-    heading->setObjectName("dashboardHeading");
-    contentLayout->addWidget(heading);
+    dashboardHeadingLabel = new QLabel("Student dashboard");
+    dashboardHeadingLabel->setObjectName("dashboardHeading");
+    contentLayout->addWidget(dashboardHeadingLabel);
     auto *accent = new QFrame();
     accent->setObjectName("headingAccent");
     accent->setFixedSize(180, 4);
     contentLayout->addWidget(accent);
-    auto *subtitle = new QLabel("Welcome back. Here is your university overview.");
-    subtitle->setObjectName("dashboardSubtitle");
-    contentLayout->addWidget(subtitle);
+    dashboardSubtitleLabel = new QLabel("Your registration, campus life and academic information.");
+    dashboardSubtitleLabel->setObjectName("dashboardSubtitle");
+    contentLayout->addWidget(dashboardSubtitleLabel);
     contentLayout->addSpacing(4);
 
     auto createCard = [](const QString &title) {
@@ -264,18 +331,20 @@ void MainWindow::setupMainMenu() {
         return card;
     };
 
-    auto *dashboardGrid = new QGridLayout();
+    dashboardGrid = new QGridLayout();
     dashboardGrid->setHorizontalSpacing(18);
     dashboardGrid->setVerticalSpacing(18);
 
-    auto *calendarCard = createCard("Calendar");
+    calendarCard = createCard("Calendar");
     auto *calendarLayout = qobject_cast<QVBoxLayout *>(calendarCard->layout());
     auto *calendarHeader = new QHBoxLayout();
     auto *dateLabel = new QLabel(QDate::currentDate().toString("dddd, d MMMM yyyy"));
     dateLabel->setObjectName("calendarDate");
     auto *viewAll = new QPushButton("View all");
     viewAll->setObjectName("linkButton");
-    connect(viewAll, &QPushButton::clicked, this, &MainWindow::onViewExamSchedule);
+    connect(viewAll, &QPushButton::clicked, this, [this] {
+        if (activeRoleMask & roleMaskForLabel("My Exams")) onViewExamSchedule();
+    });
     calendarHeader->addWidget(dateLabel);
     calendarHeader->addStretch();
     calendarHeader->addWidget(viewAll);
@@ -300,7 +369,7 @@ void MainWindow::setupMainMenu() {
     calendarLayout->addWidget(legend);
     dashboardGrid->addWidget(calendarCard, 0, 0, 2, 1);
 
-    auto *updatesCard = createCard("Updates");
+    updatesCard = createCard("Updates");
     auto *updatesLayout = qobject_cast<QVBoxLayout *>(updatesCard->layout());
     auto *updatesTabs = new QTabWidget();
     updatesTabs->setObjectName("updatesTabs");
@@ -319,24 +388,39 @@ void MainWindow::setupMainMenu() {
     updatesLayout->addWidget(updatesTabs, 1);
     dashboardGrid->addWidget(updatesCard, 0, 1);
 
-    auto *actionsCard = createCard("Quick actions");
+    actionsCard = createCard("Quick actions");
     auto *actionsLayout = qobject_cast<QVBoxLayout *>(actionsCard->layout());
-    auto *actionGrid = new QGridLayout();
-    actionGrid->setSpacing(10);
-    const std::vector<std::pair<QString, std::function<void()>>> actions = {
-        {"Register student", [this] { onRegisterStudent(); }},
-        {"View students", [this] { onViewStudents(); }},
-        {"Assign marks", [this] { onAssignMarks(); }},
-        {"View residence", [this] { onViewResidenceOccupancy(); }}
+    quickActionGrid = new QGridLayout();
+    quickActionGrid->setSpacing(10);
+    const std::vector<PortalAction> actions = {
+        {"Register", 1 | (1 << RegistrarRole) | (1 << AdministratorRole), [this] { onRegisterStudent(); }},
+        {"Student directory", (1 << RegistrarRole) | (1 << AdministratorRole), [this] { onViewStudents(); }},
+        {"Assign marks", (1 << LecturerRole) | (1 << AdministratorRole), [this] { onAssignMarks(); }},
+        {"View marks", (1 << LecturerRole) | (1 << AdministratorRole), [this] { onViewMarks(); }},
+        {"My exams", (1 << StudentRole) | (1 << LecturerRole) | (1 << RegistrarRole) | (1 << AdministratorRole), [this] { onViewExamSchedule(); }},
+        {"Enroll in exams", (1 << StudentRole) | (1 << RegistrarRole) | (1 << AdministratorRole), [this] { onEnrollExamSection(); }},
+        {"Campus sports", (1 << StudentRole) | (1 << SportsRole) | (1 << AdministratorRole), [this] { onViewSports(); }},
+        {"My sports", (1 << StudentRole) | (1 << SportsRole) | (1 << AdministratorRole), [this] { onViewStudentSports(); }},
+        {"My residence", (1 << StudentRole), [this] { onViewResidenceOccupancy(); }},
+        {"Add faculty", (1 << AdministratorRole), [this] { onAddFaculty(); }},
+        {"Departments", (1 << LecturerRole) | (1 << AdministratorRole), [this] { onViewDepartments(); }},
+        {"Search students", (1 << RegistrarRole) | (1 << AdministratorRole), [this] { onSearchStudent(); }},
+        {"Assign residence", (1 << ResidenceRole) | (1 << AdministratorRole), [this] { onAssignResidence(); }},
+        {"Residence occupancy", (1 << ResidenceRole) | (1 << AdministratorRole), [this] { onViewResidenceOccupancy(); }},
+        {"Sport participants", (1 << SportsRole) | (1 << AdministratorRole), [this] { onViewSportParticipants(); }},
+        {"System overview", (1 << AdministratorRole), [this] { onViewSystemInfo(); }},
+        {"Manage accounts", (1 << AdministratorRole), [this] { onManageAccounts(); }}
     };
-    for (int i = 0; i < static_cast<int>(actions.size()); ++i) {
-        auto *button = new QPushButton(actions[i].first);
+    for (const auto &action : actions) {
+        auto *button = new QPushButton(action.label);
         button->setObjectName("quickAction");
         button->setMinimumHeight(42);
-        connect(button, &QPushButton::clicked, this, actions[i].second);
-        actionGrid->addWidget(button, i / 2, i % 2);
+        connect(button, &QPushButton::clicked, this, [this, action] {
+            if (activeRoleMask & action.roles) action.invoke();
+        });
+        quickActions.append({action.label, action.roles, action.invoke, button});
     }
-    actionsLayout->addLayout(actionGrid);
+    actionsLayout->addLayout(quickActionGrid);
     dashboardGrid->addWidget(actionsCard, 1, 1);
 
     dashboardGrid->setColumnStretch(0, 6);
@@ -345,9 +429,131 @@ void MainWindow::setupMainMenu() {
     dashboardGrid->setRowStretch(1, 1);
     contentLayout->addLayout(dashboardGrid, 1);
 
-    rootLayout->addWidget(sidebar);
-    rootLayout->addWidget(content, 1);
+    rootLayout->addWidget(sidebarScroll);
+    auto *contentScroll = new QScrollArea();
+    contentScroll->setWidgetResizable(true);
+    contentScroll->setFrameShape(QFrame::NoFrame);
+    contentScroll->setWidget(content);
+    rootLayout->addWidget(contentScroll, 1);
     stackedWidget->addWidget(menuWidget);
+    updateResponsiveLayout();
+}
+
+void MainWindow::resizeEvent(QResizeEvent *event) {
+    QMainWindow::resizeEvent(event);
+    updateResponsiveLayout();
+}
+
+void MainWindow::updateResponsiveLayout() {
+    if (!sidebarWidget || !compactNavigation || !dashboardGrid || !calendarCard || !updatesCard || !actionsCard) return;
+    const bool compact = width() < 900;
+    sidebarWidget->setVisible(!compact);
+    compactNavigation->setVisible(compact);
+    while (QLayoutItem *item = dashboardGrid->takeAt(0)) delete item;
+    if (compact) {
+        dashboardGrid->addWidget(calendarCard, 0, 0);
+        dashboardGrid->addWidget(updatesCard, 1, 0);
+        dashboardGrid->addWidget(actionsCard, 2, 0);
+        dashboardGrid->setColumnStretch(0, 1);
+        dashboardGrid->setColumnStretch(1, 0);
+        dashboardGrid->setRowStretch(0, 1);
+        dashboardGrid->setRowStretch(1, 0);
+        dashboardGrid->setRowStretch(2, 0);
+    } else {
+        dashboardGrid->addWidget(calendarCard, 0, 0, 2, 1);
+        dashboardGrid->addWidget(updatesCard, 0, 1);
+        dashboardGrid->addWidget(actionsCard, 1, 1);
+        dashboardGrid->setColumnStretch(0, 6);
+        dashboardGrid->setColumnStretch(1, 5);
+        dashboardGrid->setRowStretch(0, 3);
+        dashboardGrid->setRowStretch(1, 1);
+    }
+}
+
+int MainWindow::roleMaskForLabel(const QString &label) const {
+    const int student = 1 << StudentRole;
+    const int lecturer = 1 << LecturerRole;
+    const int administrator = 1 << AdministratorRole;
+    const int registrar = 1 << RegistrarRole;
+    const int residence = 1 << ResidenceRole;
+    const int sports = 1 << SportsRole;
+    const int everyone = student | lecturer | administrator | registrar | residence | sports;
+
+    if (label == "Dashboard" || label == "Sign out") return everyone;
+    if (label == "Registration") return registrar | administrator;
+    if (label == "Student Directory" || label == "Search students" || label == "Deregister student") return registrar | administrator;
+    if (label == "Academics" || label == "View marks" || label == "Faculty by department" ||
+        label == "Course mapping" || label == "Department faculty" || label == "Faculty" || label == "Departments")
+        return lecturer | administrator;
+    if (label == "My Residences") return student | residence | administrator;
+    if (label == "Assign residence") return residence | administrator;
+    if (label == "Campus Sports" || label == "Student sports" || label == "Affiliate sport") return student | sports | administrator;
+    if (label == "My Exams" || label == "Exam sections") return student | lecturer | registrar | administrator;
+    if (label == "Enroll exam section") return student | registrar | administrator;
+    if (label == "My account") return everyone;
+    if (label == "System overview" || label == "Manage accounts") return administrator;
+    if (label == "Sport participants") return sports | administrator;
+    if (label == "Affiliate sport" || label == "Remove sport affiliation") return student | sports | administrator;
+    if (label == "Add faculty" || label == "Assign course" || label == "Payroll" ||
+        label == "Initialize exam schedule" || label == "Create exam section") return administrator;
+    if (label == "Add exam") return lecturer | administrator;
+    return everyone;
+}
+
+void MainWindow::applyRoleView() {
+    const QStringList roleNames = {"Student", "Lecturer", "Administrator", "Registrar", "Residence staff", "Sports coordinator"};
+    const int roleIndex = qBound(0, activeRoleIndex, RoleCount - 1);
+    const QString roleName = roleNames[roleIndex];
+    activeRoleMask = 1 << roleIndex;
+
+    if (sessionLabel) sessionLabel->setText(QString("%1 · %2").arg(currentUser.fullName, roleName));
+    if (portalLabel) portalLabel->setText(roleName.toUpper() + " PORTAL");
+    if (dashboardHeadingLabel) dashboardHeadingLabel->setText(roleName + " dashboard");
+    if (dashboardSubtitleLabel) {
+        const QStringList descriptions = {
+            "Your registration, campus life and academic information.",
+            "Teaching tools, course assignments and exam information.",
+            "University operations, people and academic services.",
+            "Student records, registration and exam enrollment.",
+            "Room assignments and residence occupancy.",
+            "Campus sports, affiliations and participant lists."
+        };
+        dashboardSubtitleLabel->setText(descriptions[roleIndex]);
+    }
+
+    for (const auto &action : navigationActions)
+        if (action.button) action.button->setVisible(action.roles & activeRoleMask);
+
+    if (compactNavigation) {
+        compactNavigation->clear();
+        compactNavigation->addItem("Go to…", -1);
+        for (int i = 0; i < navigationActions.size(); ++i) {
+            const auto &action = navigationActions[i];
+            if (action.roles & activeRoleMask) compactNavigation->addItem(action.label, i);
+        }
+    }
+
+    while (quickActionGrid && quickActionGrid->count()) {
+        QLayoutItem *item = quickActionGrid->takeAt(0);
+        delete item;
+    }
+    int visibleAction = 0;
+    for (const auto &action : quickActions) {
+        const bool visible = action.roles & activeRoleMask;
+        if (action.button) action.button->setVisible(visible);
+        if (visible && quickActionGrid) quickActionGrid->addWidget(action.button, visibleAction / 2, visibleAction % 2);
+        if (visible) ++visibleAction;
+    }
+}
+
+int MainWindow::roleIndexForCode(const QString &role) const {
+    if (role == "student") return StudentRole;
+    if (role == "lecturer") return LecturerRole;
+    if (role == "administrator") return AdministratorRole;
+    if (role == "registrar") return RegistrarRole;
+    if (role == "residence") return ResidenceRole;
+    if (role == "sports") return SportsRole;
+    return AdministratorRole;
 }
 
 void MainWindow::setupLegacyMenu() {
@@ -604,6 +810,7 @@ void MainWindow::applyStylesheet() {
         QPushButton#navButton:hover { background: #f2edf5; color: #6f168d; }
         QPushButton#navButtonActive { background: #f0e7f4; color: #6f168d; font-weight: 700; border-left: 3px solid #6f168d; }
         QLabel#portalLabel { color: #8a8a92; font-size: 13px; }
+        QLabel#sessionLabel { color: #4d3b57; font-size: 13px; font-weight: 600; padding: 0 8px; }
         QPushButton#utilityButton { min-width: 34px; max-width: 34px; min-height: 34px; max-height: 34px; border: 0; border-radius: 7px; background: #e4e4e7; color: #6f168d; font-weight: 700; }
         QPushButton#utilityButton:hover { background: #d8c7e1; }
         QLabel#dashboardHeading { color: #34343a; font-size: 42px; font-weight: 800; }
@@ -623,6 +830,8 @@ void MainWindow::applyStylesheet() {
         QLabel#emptyState { color: #4e4f57; padding: 16px 10px; font-size: 14px; }
         QPushButton#quickAction { background: #f7f3f9; color: #6f168d; border: 1px solid #dfd1e7; border-radius: 6px; font-weight: 600; padding: 7px; }
         QPushButton#quickAction:hover { background: #e9dcee; }
+        QComboBox#compactNavigation { min-height: 34px; min-width: 170px; padding: 2px 8px; border: 1px solid #ddd6e3; border-radius: 6px; background: white; color: #4d3b57; }
+        QComboBox#compactNavigation:focus { border: 2px solid #6f168d; }
         QLineEdit { color: #202027; background-color: #ffffff; border: 1px solid #c9c9d0; border-radius: 4px; padding: 6px; selection-background-color: #6f168d; }
         QLineEdit:focus { border: 2px solid #6f168d; }
         QDialog { background-color: #f5f5f7; }
@@ -680,6 +889,11 @@ void MainWindow::onDeregisterStudent() {
     if (ok && !selectedId.isEmpty()) {
         Student* student = admin->searchStudent(selectedId.toStdString());
         if (student) {
+            const auto choice = QMessageBox::question(this, "Confirm deregistration",
+                QString("Remove %1 (%2) from the student register?")
+                    .arg(QString::fromStdString(student->getName()), selectedId),
+                QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
+            if (choice != QMessageBox::Yes) return;
             admin->deregisterStudent(selectedId.toStdString());
             QMessageBox::information(this, "Success", "Student deregistered successfully.");
         }
@@ -737,7 +951,45 @@ void MainWindow::onViewMarks() {
 }
 
 void MainWindow::onAddFaculty() {
-    QMessageBox::information(this, "Add Faculty", "Faculty management features coming soon.");
+    bool ok = false;
+    const QString id = QInputDialog::getText(this, "Add faculty", "Faculty record ID:", QLineEdit::Normal, {}, &ok).trimmed();
+    if (!ok || id.isEmpty()) return;
+    const QString employeeId = QInputDialog::getText(this, "Add faculty", "Employee ID:", QLineEdit::Normal, {}, &ok).trimmed();
+    if (!ok || employeeId.isEmpty()) return;
+    for (auto *member : admin->getFacultyList()) {
+        if (QString::fromStdString(member->getEmployeeId()) == employeeId) {
+            QMessageBox::warning(this, "Duplicate employee ID", "A faculty member with this employee ID already exists.");
+            return;
+        }
+    }
+    const QString name = QInputDialog::getText(this, "Add faculty", "Full name:", QLineEdit::Normal, {}, &ok).trimmed();
+    if (!ok || name.isEmpty()) return;
+    const QString email = QInputDialog::getText(this, "Add faculty", "Email address:", QLineEdit::Normal, {}, &ok).trimmed();
+    if (!ok || email.isEmpty() || !email.contains('@') || !email.contains('.')) {
+        if (ok) QMessageBox::warning(this, "Invalid email", "Enter a valid email address.");
+        return;
+    }
+    const QString phone = QInputDialog::getText(this, "Add faculty", "Phone number:", QLineEdit::Normal, {}, &ok).trimmed();
+    if (!ok || phone.isEmpty()) return;
+    QStringList departmentNames;
+    for (auto *department : admin->getDepartments()) departmentNames.append(QString::fromStdString(department->getDepartmentName()));
+    const QString departmentName = QInputDialog::getItem(this, "Add faculty", "Department:", departmentNames, 0, false, &ok);
+    if (!ok || departmentName.isEmpty()) return;
+    const QString designation = QInputDialog::getText(this, "Add faculty", "Designation:", QLineEdit::Normal, {}, &ok).trimmed();
+    if (!ok || designation.isEmpty()) return;
+    const double salary = QInputDialog::getDouble(this, "Add faculty", "Monthly salary (R):", 30000.0, 0.0, 10000000.0, 2, &ok);
+    if (!ok) return;
+    auto *member = new Faculty(id.toStdString(), name.toStdString(), email.toStdString(), phone.toStdString(),
+                               employeeId.toStdString(), departmentName.toStdString(), designation.toStdString(), salary);
+    admin->addFaculty(member);
+    faculty.push_back(member);
+    for (auto *department : admin->getDepartments()) {
+        if (departmentName.toStdString() == department->getDepartmentName()) {
+            department->addFaculty(member);
+            break;
+        }
+    }
+    QMessageBox::information(this, "Faculty added", QString("%1 has been added to %2.").arg(name, departmentName));
 }
 
 void MainWindow::onViewFaculty() {
@@ -768,8 +1020,18 @@ void MainWindow::onViewFacultyByDept() {
     bool ok;
     QString selectedDept = QInputDialog::getItem(this, "Select Department", "Department:", deptNames, 0, false, &ok);
     if (ok && !selectedDept.isEmpty()) {
-        admin->displayFacultyByDepartment(selectedDept.toStdString());
-        QMessageBox::information(this, "Faculty by Department", "Faculty listing displayed in console.");
+        QStringList facultyItems;
+        for (auto *member : admin->getFacultyList()) {
+            if (QString::fromStdString(member->getDepartment()) == selectedDept) {
+                facultyItems.append(QString("%1 | %2 | %3")
+                    .arg(QString::fromStdString(member->getEmployeeId()),
+                         QString::fromStdString(member->getName()),
+                         QString::fromStdString(member->getDesignation())));
+            }
+        }
+        if (facultyItems.isEmpty()) facultyItems.append("No faculty members are assigned to this department.");
+        GenericListDialog dialog("Faculty in " + selectedDept, facultyItems, this);
+        dialog.exec();
     }
 }
 
@@ -797,8 +1059,18 @@ void MainWindow::onAssignCourse() {
 }
 
 void MainWindow::onViewCourseFacultyMapping() {
-    admin->displayCourseFacultyMapping();
-    QMessageBox::information(this, "Course-Faculty Mapping", "Mapping displayed in console.");
+    QStringList mapping;
+    for (auto *member : admin->getFacultyList()) {
+        const auto courses = member->getCoursesTaught();
+        for (const auto &course : courses) {
+            mapping.append(QString("%1 — %2 (%3)")
+                .arg(QString::fromStdString(course), QString::fromStdString(member->getName()),
+                     QString::fromStdString(member->getEmployeeId())));
+        }
+    }
+    if (mapping.isEmpty()) mapping.append("No courses have been assigned to faculty yet.");
+    GenericListDialog dialog("Course–Faculty Mapping", mapping, this);
+    dialog.exec();
 }
 
 void MainWindow::onViewDepartments() {
@@ -886,23 +1158,52 @@ void MainWindow::onAssignResidence() {
         QMessageBox::warning(this, "Error", "Student not found.");
         return;
     }
+    if (!student->getResidenceBlock().empty()) {
+        QMessageBox::information(this, "Residence already assigned",
+            QString("This student already has a room assigned: %1.").arg(QString::fromStdString(student->getResidenceBlock())));
+        return;
+    }
     
     QString roomNo = QInputDialog::getText(this, "Assign Residence", "Enter room number:", QLineEdit::Normal, "", &ok);
     if (ok && !roomNo.isEmpty()) {
         bool isInt;
         int roomNumber = roomNo.toInt(&isInt);
-        if (isInt && roomNumber > 0) {
+        if (isInt && roomNumber > 0 && roomNumber <= hostelA->getTotalRooms()) {
+            if (hostelA->getRoomOccupant(roomNumber)) {
+                QMessageBox::warning(this, "Room unavailable", "That room is already occupied.");
+                return;
+            }
             hostelA->assignRoom(roomNumber, student);
             QMessageBox::information(this, "Success", "Room assigned successfully.");
         } else {
-            QMessageBox::warning(this, "Invalid Input", "Please enter a valid room number.");
+            QMessageBox::warning(this, "Invalid Input", QString("Enter a room number from 1 to %1.").arg(hostelA->getTotalRooms()));
         }
     }
 }
 
 void MainWindow::onViewResidenceOccupancy() {
-    QMessageBox::information(this, "Residence Occupancy", "Viewing occupancy status...");
-    hostelA->displayRoomOccupancy();
+    if (activeRoleIndex == StudentRole) {
+        if (currentUser.linkedId.isEmpty()) {
+            QMessageBox::information(this, "My residence", "Your account is not linked to a student record yet.");
+            return;
+        }
+        Student *student = admin->searchStudent(currentUser.linkedId.toStdString());
+        const QString assignment = student && !student->getResidenceBlock().empty()
+            ? QString::fromStdString(student->getResidenceBlock()) : "No residence room is assigned to your account.";
+        QMessageBox::information(this, "My residence", assignment);
+        return;
+    }
+    QStringList rooms;
+    for (int room = 1; room <= hostelA->getTotalRooms(); ++room) {
+        Student *occupant = hostelA->getRoomOccupant(room);
+        rooms.append(occupant
+            ? QString("Room %1 — %2 (%3)").arg(room).arg(QString::fromStdString(occupant->getName()), QString::fromStdString(occupant->getId()))
+            : QString("Room %1 — Available").arg(room));
+    }
+    GenericListDialog dialog(QString("%1 · %2/%3 occupied")
+        .arg(QString::fromStdString(hostelA->getResidenceName()))
+        .arg(hostelA->getOccupiedRooms()).arg(hostelA->getTotalRooms()), rooms, this);
+    dialog.exec();
 }
 
 void MainWindow::onViewSports() {
@@ -936,19 +1237,24 @@ void MainWindow::onAffiliateSport() {
         return;
     }
     
-    QStringList studentIds;
-    for (auto student : students) {
-        studentIds.append(QString::fromStdString(student->getId()));
+    QString studentId;
+    bool ok = false;
+    if (activeRoleIndex == StudentRole) {
+        studentId = currentUser.linkedId;
+        if (studentId.isEmpty() || !admin->searchStudent(studentId.toStdString())) {
+            QMessageBox::warning(this, "Student account", "Your account must be linked to an active student record before joining a sport.");
+            return;
+        }
+    } else {
+        QStringList studentIds;
+        for (auto student : students) studentIds.append(QString::fromStdString(student->getId()));
+        studentId = QInputDialog::getItem(this, "Affiliate Sport", "Select Student:", studentIds, 0, false, &ok);
+        if (!ok || studentId.isEmpty()) return;
     }
-    
     QStringList sportIds;
     for (auto sport : sports) {
         sportIds.append(QString::fromStdString(sport->getSportId()));
     }
-    
-    bool ok;
-    QString studentId = QInputDialog::getItem(this, "Affiliate Sport", "Select Student:", studentIds, 0, false, &ok);
-    if (!ok || studentId.isEmpty()) return;
     
     QString sportId = QInputDialog::getItem(this, "Affiliate Sport", "Select Sport:", sportIds, 0, false, &ok);
     if (ok && !sportId.isEmpty()) {
@@ -958,6 +1264,21 @@ void MainWindow::onAffiliateSport() {
 }
 
 void MainWindow::onViewStudentSports() {
+    if (activeRoleIndex == StudentRole) {
+        if (currentUser.linkedId.isEmpty()) {
+            QMessageBox::information(this, "My sports", "Your account is not linked to a student record yet.");
+            return;
+        }
+        QStringList sports;
+        for (const auto &sportId : sportsAffiliation->getStudentAffiliations(currentUser.linkedId.toStdString())) {
+            Sports *sport = sportsAffiliation->getSport(sportId);
+            if (sport) sports.append(QString::fromStdString(sport->getSportName()));
+        }
+        if (sports.isEmpty()) sports.append("You are not affiliated with any campus sports yet.");
+        GenericListDialog dialog("My sports", sports, this);
+        dialog.exec();
+        return;
+    }
     auto students = admin->getRegisteredStudents();
     if (students.empty()) {
         QMessageBox::information(this, "Student Sports", "No students registered.");
@@ -1005,8 +1326,19 @@ void MainWindow::onViewSportParticipants() {
     bool ok;
     QString sportId = QInputDialog::getItem(this, "Sport Participants", "Select Sport:", sportIds, 0, false, &ok);
     if (ok && !sportId.isEmpty()) {
-        sportsAffiliation->displaySportParticipants(sportId.toStdString());
-        QMessageBox::information(this, "Sport Participants", "Participant list displayed in console.");
+        Sports *sport = sportsAffiliation->getSport(sportId.toStdString());
+        QStringList participants;
+        if (sport) {
+            for (const auto &studentId : sport->getAffiliatedStudents()) {
+                Student *student = admin->searchStudent(studentId);
+                participants.append(student
+                    ? QString("%1 — %2").arg(QString::fromStdString(studentId), QString::fromStdString(student->getName()))
+                    : QString::fromStdString(studentId));
+            }
+        }
+        if (participants.isEmpty()) participants.append("No students are affiliated with this sport yet.");
+        GenericListDialog dialog("Sport Participants", participants, this);
+        dialog.exec();
     }
 }
 
@@ -1017,14 +1349,20 @@ void MainWindow::onRemoveSportAffiliation() {
         return;
     }
     
-    QStringList studentIds;
-    for (auto student : students) {
-        studentIds.append(QString::fromStdString(student->getId()));
+    bool ok = false;
+    QString studentId;
+    if (activeRoleIndex == StudentRole) {
+        studentId = currentUser.linkedId;
+        if (studentId.isEmpty() || !admin->searchStudent(studentId.toStdString())) {
+            QMessageBox::warning(this, "Student account", "Your account must be linked to an active student record.");
+            return;
+        }
+    } else {
+        QStringList studentIds;
+        for (auto student : students) studentIds.append(QString::fromStdString(student->getId()));
+        studentId = QInputDialog::getItem(this, "Remove Sport", "Select Student:", studentIds, 0, false, &ok);
+        if (!ok || studentId.isEmpty()) return;
     }
-    
-    bool ok;
-    QString studentId = QInputDialog::getItem(this, "Remove Sport", "Select Student:", studentIds, 0, false, &ok);
-    if (!ok || studentId.isEmpty()) return;
     
     auto sportIds = sportsAffiliation->getStudentAffiliations(studentId.toStdString());
     if (sportIds.empty()) {
@@ -1045,30 +1383,177 @@ void MainWindow::onRemoveSportAffiliation() {
 }
 
 void MainWindow::onInitializeExamSchedule() {
-    QMessageBox::information(this, "Initialize Exam Schedule", "Exam schedule initialization feature available.");
+    QStringList departments;
+    for (auto *department : admin->getDepartments()) departments.append(QString::fromStdString(department->getDepartmentName()));
+    bool ok = false;
+    const QString department = QInputDialog::getItem(this, "Initialize exam schedule", "Department:", departments, 0, false, &ok);
+    if (!ok || department.isEmpty()) return;
+    const QString semester = QInputDialog::getText(this, "Initialize exam schedule", "Semester (for example, Semester 1 2026):", QLineEdit::Normal, {}, &ok).trimmed();
+    if (!ok || semester.isEmpty()) return;
+    const std::string key = department.toStdString();
+    if (examSchedules.count(key)) {
+        QMessageBox::warning(this, "Schedule exists", "An exam schedule already exists for this department.");
+        return;
+    }
+    const QString id = QString("%1-%2").arg(department, semester).replace(QRegularExpression("[^A-Za-z0-9-]"), "-");
+    examSchedules[key] = new ExamSchedule(id.toStdString(), key, semester.toStdString());
+    QMessageBox::information(this, "Schedule created", QString("The %1 exam schedule is ready.").arg(department));
 }
 
 void MainWindow::onCreateExamSection() {
-    QMessageBox::information(this, "Create Exam Section", "Exam section creation feature available.");
+    QStringList available;
+    for (const auto &entry : examSchedules) available.append(QString::fromStdString(entry.first));
+    if (available.isEmpty()) { QMessageBox::information(this, "Create exam section", "Initialize a department schedule first."); return; }
+    bool ok = false;
+    const QString department = QInputDialog::getItem(this, "Create exam section", "Department:", available, 0, false, &ok);
+    if (!ok || department.isEmpty()) return;
+    ExamSchedule *schedule = examSchedules.at(department.toStdString());
+    const QString id = QInputDialog::getText(this, "Create exam section", "Section ID:", QLineEdit::Normal, {}, &ok).trimmed();
+    if (!ok || id.isEmpty()) return;
+    if (schedule->getExamSectionById(id.toStdString())) { QMessageBox::warning(this, "Duplicate section", "That section ID already exists."); return; }
+    const QString name = QInputDialog::getText(this, "Create exam section", "Section name:", QLineEdit::Normal, {}, &ok).trimmed();
+    if (!ok || name.isEmpty()) return;
+    const QString invigilator = QInputDialog::getText(this, "Create exam section", "Invigilator:", QLineEdit::Normal, {}, &ok).trimmed();
+    if (!ok || invigilator.isEmpty()) return;
+    const QString room = QInputDialog::getText(this, "Create exam section", "Room:", QLineEdit::Normal, {}, &ok).trimmed();
+    if (!ok || room.isEmpty()) return;
+    const int capacity = QInputDialog::getInt(this, "Create exam section", "Capacity:", 30, 1, 1000, 1, &ok);
+    if (!ok) return;
+    schedule->addExamSection(new ExamSection(id.toStdString(), name.toStdString(), department.toStdString(), invigilator.toStdString(), capacity, room.toStdString()));
+    QMessageBox::information(this, "Section created", QString("%1 was added to the %2 schedule.").arg(name, department));
 }
 
 void MainWindow::onAddExam() {
-    QMessageBox::information(this, "Add Exam", "Exam management feature available.");
+    QStringList available;
+    for (const auto &entry : examSchedules) if (!entry.second->getExamSections().empty()) available.append(QString::fromStdString(entry.first));
+    if (available.isEmpty()) { QMessageBox::information(this, "Add exam", "Create a department schedule and section first."); return; }
+    bool ok = false;
+    const QString department = QInputDialog::getItem(this, "Add exam", "Department:", available, 0, false, &ok);
+    if (!ok || department.isEmpty()) return;
+    ExamSchedule *schedule = examSchedules.at(department.toStdString());
+    QStringList sectionIds;
+    for (auto *section : schedule->getExamSections()) sectionIds.append(QString::fromStdString(section->getSectionId()));
+    const QString sectionId = QInputDialog::getItem(this, "Add exam", "Section:", sectionIds, 0, false, &ok);
+    if (!ok || sectionId.isEmpty()) return;
+    ExamSection *section = schedule->getExamSectionById(sectionId.toStdString());
+    const QString id = QInputDialog::getText(this, "Add exam", "Exam ID:", QLineEdit::Normal, {}, &ok).trimmed();
+    if (!ok || id.isEmpty()) return;
+    if (section->getExamById(id.toStdString())) { QMessageBox::warning(this, "Duplicate exam", "That exam ID already exists in this section."); return; }
+    const QString name = QInputDialog::getText(this, "Add exam", "Exam or course name:", QLineEdit::Normal, {}, &ok).trimmed();
+    if (!ok || name.isEmpty()) return;
+    const QString type = QInputDialog::getItem(this, "Add exam", "Type:", {"Midterm", "Final", "Quiz", "Assignment"}, 0, false, &ok);
+    if (!ok || type.isEmpty()) return;
+    const QString date = QInputDialog::getText(this, "Add exam", "Date (DD/MM/YYYY):", QLineEdit::Normal, {}, &ok).trimmed();
+    if (!ok) return;
+    const QDate parsedDate = QDate::fromString(date, "dd/MM/yyyy");
+    if (!parsedDate.isValid() || parsedDate.toString("dd/MM/yyyy") != date) { QMessageBox::warning(this, "Invalid date", "Enter a valid date as DD/MM/YYYY."); return; }
+    const QString time = QInputDialog::getText(this, "Add exam", "Time (HH:MM):", QLineEdit::Normal, "09:00", &ok).trimmed();
+    if (!ok) return;
+    if (!QTime::fromString(time, "HH:mm").isValid()) { QMessageBox::warning(this, "Invalid time", "Enter a valid time as HH:MM."); return; }
+    const int duration = QInputDialog::getInt(this, "Add exam", "Duration in minutes:", 120, 1, 1440, 1, &ok);
+    if (!ok) return;
+    const int marks = QInputDialog::getInt(this, "Add exam", "Maximum marks:", 100, 1, 10000, 1, &ok);
+    if (!ok) return;
+    const QString venue = QInputDialog::getText(this, "Add exam", "Venue:", QLineEdit::Normal, QString::fromStdString(section->getRoomNumber()), &ok).trimmed();
+    if (!ok || venue.isEmpty()) return;
+    Exam *exam = nullptr;
+    if (type == "Midterm") exam = new Midterm(id.toStdString(), name.toStdString(), department.toStdString(), date.toStdString(), time.toStdString(), duration, marks, venue.toStdString());
+    else if (type == "Final") exam = new Final(id.toStdString(), name.toStdString(), department.toStdString(), date.toStdString(), time.toStdString(), duration, marks, venue.toStdString());
+    else if (type == "Quiz") exam = new Quiz(id.toStdString(), name.toStdString(), department.toStdString(), date.toStdString(), time.toStdString(), duration, marks, venue.toStdString());
+    else exam = new Assignment(id.toStdString(), name.toStdString(), department.toStdString(), date.toStdString(), time.toStdString(), duration, marks, venue.toStdString());
+    section->addExam(exam);
+    QMessageBox::information(this, "Exam added", QString("%1 was added to section %2.").arg(name, sectionId));
 }
 
 void MainWindow::onEnrollExamSection() {
-    QMessageBox::information(this, "Enroll in Exam", "Exam enrollment feature available.");
+    QStringList available;
+    for (const auto &entry : examSchedules) if (!entry.second->getExamSections().empty()) available.append(QString::fromStdString(entry.first));
+    if (available.isEmpty()) { QMessageBox::information(this, "Enroll in exam section", "Create a department schedule and section first."); return; }
+    bool ok = false;
+    const QString department = QInputDialog::getItem(this, "Enroll in exam section", "Department:", available, 0, false, &ok);
+    if (!ok || department.isEmpty()) return;
+    ExamSchedule *schedule = examSchedules.at(department.toStdString());
+    QStringList sectionIds;
+    for (auto *section : schedule->getExamSections()) sectionIds.append(QString::fromStdString(section->getSectionId()));
+    const QString sectionId = QInputDialog::getItem(this, "Enroll in exam section", "Section:", sectionIds, 0, false, &ok);
+    if (!ok || sectionId.isEmpty()) return;
+    ExamSection *section = schedule->getExamSectionById(sectionId.toStdString());
+    QString studentId;
+    if (activeRoleIndex == StudentRole) {
+        studentId = currentUser.linkedId;
+        if (studentId.isEmpty() || !admin->searchStudent(studentId.toStdString())) {
+            QMessageBox::warning(this, "Student account", "Your account must be linked to an active student record before enrolling.");
+            return;
+        }
+    } else {
+        QStringList studentIds;
+        for (auto *student : admin->getRegisteredStudents()) studentIds.append(QString::fromStdString(student->getId()));
+        if (studentIds.isEmpty()) { QMessageBox::information(this, "Enroll in exam section", "Register students before enrolling them."); return; }
+        studentId = QInputDialog::getItem(this, "Enroll in exam section", "Student:", studentIds, 0, false, &ok);
+        if (!ok || studentId.isEmpty()) return;
+    }
+    if (section->isStudentEnrolled(studentId.toStdString())) { QMessageBox::information(this, "Already enrolled", "This student is already in the selected section."); return; }
+    if (section->getEnrolledCount() >= section->getCapacity()) { QMessageBox::warning(this, "Section full", "This exam section has reached capacity."); return; }
+    section->enrollStudent(studentId.toStdString());
+    QMessageBox::information(this, "Enrollment complete", QString("Student %1 is enrolled in %2.").arg(studentId, sectionId));
 }
 
 void MainWindow::onViewExamSchedule() {
-    QMessageBox::information(this, "Exam Schedule", "Exam schedule viewing feature available.");
+    QStringList available;
+    for (const auto &entry : examSchedules) available.append(QString::fromStdString(entry.first));
+    if (available.isEmpty()) { QMessageBox::information(this, "Exam schedule", "No exam schedules have been created yet."); return; }
+    bool ok = false;
+    const QString department = QInputDialog::getItem(this, "View exam schedule", "Department:", available, 0, false, &ok);
+    if (!ok || department.isEmpty()) return;
+    ExamSchedule *schedule = examSchedules.at(department.toStdString());
+    QStringList rows;
+    for (auto *section : schedule->getExamSections()) {
+        rows.append(QString("%1 — %2 | Room %3 | %4/%5 enrolled | Invigilator: %6")
+            .arg(QString::fromStdString(section->getSectionId()), QString::fromStdString(section->getSectionName()),
+                 QString::fromStdString(section->getRoomNumber()))
+            .arg(section->getEnrolledCount()).arg(section->getCapacity())
+            .arg(QString::fromStdString(section->getInvigilator())));
+        for (auto *exam : section->getExams()) rows.append(QString("   %1 · %2 · %3 %4 · %5 min")
+            .arg(QString::fromStdString(exam->getExamName()), QString::fromStdString(exam->getExamType()),
+                 QString::fromStdString(exam->getDate()), QString::fromStdString(exam->getTime())).arg(exam->getDuration()));
+    }
+    if (rows.isEmpty()) rows.append("No exam sections have been added to this schedule.");
+    GenericListDialog dialog(QString("%1 — %2").arg(department, QString::fromStdString(schedule->getSemester())), rows, this);
+    dialog.exec();
 }
 
 void MainWindow::onViewExamSectionDetails() {
-    QMessageBox::information(this, "Exam Details", "Exam section details feature available.");
+    QStringList available;
+    for (const auto &entry : examSchedules) if (!entry.second->getExamSections().empty()) available.append(QString::fromStdString(entry.first));
+    if (available.isEmpty()) { QMessageBox::information(this, "Exam section details", "No exam sections have been created yet."); return; }
+    bool ok = false;
+    const QString department = QInputDialog::getItem(this, "Exam section details", "Department:", available, 0, false, &ok);
+    if (!ok || department.isEmpty()) return;
+    ExamSchedule *schedule = examSchedules.at(department.toStdString());
+    QStringList sectionIds;
+    for (auto *section : schedule->getExamSections()) sectionIds.append(QString::fromStdString(section->getSectionId()));
+    const QString sectionId = QInputDialog::getItem(this, "Exam section details", "Section:", sectionIds, 0, false, &ok);
+    if (!ok || sectionId.isEmpty()) return;
+    ExamSection *section = schedule->getExamSectionById(sectionId.toStdString());
+    QStringList details = {QString::fromStdString(section->getSectionName()),
+        QString("Department: %1 | Invigilator: %2").arg(department, QString::fromStdString(section->getInvigilator())),
+        QString("Room: %1 | Enrollment: %2/%3").arg(QString::fromStdString(section->getRoomNumber())).arg(section->getEnrolledCount()).arg(section->getCapacity()),
+        "Exams:"};
+    for (auto *exam : section->getExams()) details.append(QString("%1 — %2 | %3 %4 | %5 minutes | %6 marks | %7")
+        .arg(QString::fromStdString(exam->getExamType()), QString::fromStdString(exam->getExamName()),
+             QString::fromStdString(exam->getDate()), QString::fromStdString(exam->getTime()))
+        .arg(exam->getDuration()).arg(exam->getMaxMarks()).arg(QString::fromStdString(exam->getVenue())));
+    details.append("Enrolled students:");
+    for (const auto &id : section->getEnrolledStudents()) {
+        Student *student = admin->searchStudent(id);
+        details.append(student ? QString("%1 — %2").arg(QString::fromStdString(id), QString::fromStdString(student->getName())) : QString::fromStdString(id));
+    }
+    GenericListDialog dialog(QString("Exam section %1").arg(sectionId), details, this);
+    dialog.exec();
 }
 
 void MainWindow::onViewSystemInfo() {
+    if (activeRoleIndex != AdministratorRole) return;
     QString info = QString(
         "University Management System\n"
         "Version 2.0 - Qt6 GUI Edition\n\n"
@@ -1081,13 +1566,89 @@ void MainWindow::onViewSystemInfo() {
           QString::fromStdString(academicAdmin->getAdminName()), 
           QString::number(departments.size()), 
           QString::number(admin->getTotalRegistrations()),
-          QString::number(faculty.size()));
+          QString::number(admin->getFacultyList().size()));
     
     QMessageBox::information(this, "System Information", info);
 }
 
+void MainWindow::onViewMyAccount() {
+    QString details = QString("Name: %1\nUsername: %2\nRole: %3")
+        .arg(currentUser.fullName, currentUser.username,
+             QStringList{"Student", "Lecturer", "Administrator", "Registrar", "Residence staff", "Sports coordinator"}[activeRoleIndex]);
+    if (!currentUser.linkedId.isEmpty()) details += QString("\nLinked university ID: %1").arg(currentUser.linkedId);
+    QMessageBox accountBox(QMessageBox::Information, "My account", details, QMessageBox::Close, this);
+    QPushButton *changePassword = accountBox.addButton("Change password", QMessageBox::ActionRole);
+    accountBox.exec();
+    if (accountBox.clickedButton() != changePassword) return;
+    bool ok = false;
+    const QString oldPassword = QInputDialog::getText(this, "Change password", "Current password:", QLineEdit::Password, {}, &ok);
+    if (!ok) return;
+    const QString newPassword = QInputDialog::getText(this, "Change password", "New password (at least 10 characters):", QLineEdit::Password, {}, &ok);
+    if (!ok) return;
+    const QString confirmation = QInputDialog::getText(this, "Confirm password", "Repeat the new password:", QLineEdit::Password, {}, &ok);
+    if (!ok) return;
+    if (newPassword != confirmation) {
+        QMessageBox::warning(this, "Password mismatch", "The new passwords do not match.");
+        return;
+    }
+    QString error;
+    if (!authenticationStore->changePassword(currentUser.username, oldPassword, newPassword, &error)) {
+        QMessageBox::warning(this, "Password not changed", error);
+        return;
+    }
+    QMessageBox::information(this, "Password changed", "Your password has been updated.");
+}
+
+void MainWindow::onManageAccounts() {
+    if (activeRoleIndex != AdministratorRole || !authenticationStore) return;
+    QMessageBox accountList(QMessageBox::Information, "University accounts",
+        authenticationStore->accountSummaries().join('\n'), QMessageBox::Close, this);
+    QPushButton *createAccount = accountList.addButton("Create account", QMessageBox::ActionRole);
+    accountList.exec();
+    if (accountList.clickedButton() != createAccount) return;
+    bool ok = false;
+    const QString username = QInputDialog::getText(this, "Create university account", "Username:", QLineEdit::Normal, {}, &ok).trimmed();
+    if (!ok) return;
+    const QString fullName = QInputDialog::getText(this, "Create university account", "Full name:", QLineEdit::Normal, {}, &ok).trimmed();
+    if (!ok) return;
+    const QStringList roleLabels = {"Student", "Lecturer", "Administrator", "Registrar", "Residence staff", "Sports coordinator"};
+    const QString roleLabel = QInputDialog::getItem(this, "Create university account", "Role:", roleLabels, 0, false, &ok);
+    if (!ok || roleLabel.isEmpty()) return;
+    const QStringList roleCodes = {"student", "lecturer", "administrator", "registrar", "residence", "sports"};
+    const QString role = roleCodes[roleLabels.indexOf(roleLabel)];
+    QString linkedId;
+    if (role == "student" || role == "lecturer") {
+        linkedId = QInputDialog::getText(this, "Link university record", role == "student" ? "Student ID:" : "Employee ID:", QLineEdit::Normal, {}, &ok).trimmed();
+        if (!ok || linkedId.isEmpty()) return;
+        bool found = role == "student" ? admin->searchStudent(linkedId.toStdString()) != nullptr : false;
+        if (role == "lecturer") {
+            for (auto *member : admin->getFacultyList()) if (QString::fromStdString(member->getEmployeeId()) == linkedId) found = true;
+        }
+        if (!found) {
+            QMessageBox::warning(this, "University record not found", role == "student"
+                ? "Register the student before creating this account."
+                : "Add the lecturer before creating this account.");
+            return;
+        }
+    }
+    const QString password = QInputDialog::getText(this, "Set temporary password", "Password (at least 10 characters):", QLineEdit::Password, {}, &ok);
+    if (!ok) return;
+    const QString confirmation = QInputDialog::getText(this, "Confirm password", "Repeat the password:", QLineEdit::Password, {}, &ok);
+    if (!ok) return;
+    if (password != confirmation) {
+        QMessageBox::warning(this, "Password mismatch", "The passwords do not match.");
+        return;
+    }
+    QString error;
+    if (!authenticationStore->createAccount(username, password, fullName, role, linkedId, &error)) {
+        QMessageBox::warning(this, "Account not created", error);
+        return;
+    }
+    QMessageBox::information(this, "Account created", QString("The %1 account for %2 is ready. Share the temporary password directly with the account holder.").arg(roleLabel, fullName));
+}
+
 void MainWindow::onBackToMenu() {
-    stackedWidget->setCurrentWidget(welcomeWidget);
+    if (!authenticateSession()) qApp->quit();
 }
 
 void MainWindow::onExit() {
