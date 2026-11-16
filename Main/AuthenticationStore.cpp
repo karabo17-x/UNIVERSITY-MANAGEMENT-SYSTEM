@@ -57,7 +57,7 @@ AuthenticationStore::AuthenticationStore(const QString &databasePath) {
         "CREATE TABLE IF NOT EXISTS accounts ("
         " username TEXT PRIMARY KEY COLLATE NOCASE,"
         " full_name TEXT NOT NULL,"
-        " role TEXT NOT NULL CHECK(role IN ('student','lecturer','administrator','registrar','residence','sports'))," 
+        " role TEXT NOT NULL CHECK(role IN ('student','lecturer','administrator','registrar','residence','sports')),"
         " linked_id TEXT NOT NULL DEFAULT '',"
         " password_salt TEXT NOT NULL,"
         " password_hash TEXT NOT NULL,"
