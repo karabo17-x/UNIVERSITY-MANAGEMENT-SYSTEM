@@ -984,6 +984,12 @@ void MainWindow::onAddFaculty() {
     admin->addFaculty(member);
     faculty.push_back(member);
     for (auto *department : admin->getDepartments()) {
+        if (departmentName.toStdString() == department->getDepartmentName()) {
+            department->addFaculty(member);
+            break;
+        }
+    }
+    QMessageBox::information(this, "Faculty added", QString("%1 has been added to %2.").arg(name, departmentName));
 }
 
 void MainWindow::onViewFaculty() {
@@ -1014,8 +1020,12 @@ void MainWindow::onViewFacultyByDept() {
     bool ok;
     QString selectedDept = QInputDialog::getItem(this, "Select Department", "Department:", deptNames, 0, false, &ok);
     if (ok && !selectedDept.isEmpty()) {
-        admin->displayFacultyByDepartment(selectedDept.toStdString());
-        QMessageBox::information(this, "Faculty by Department", "Faculty listing displayed in console.");
+        QStringList facultyItems;
+        for (auto *member : admin->getFacultyList()) {
+            if (QString::fromStdString(member->getDepartment()) == selectedDept) {
+                facultyItems.append(QString("%1 | %2 | %3")
+                    .arg(QString::fromStdString(member->getEmployeeId()),
+                         QString::fromStdString(member->getName()),
     }
 }
 
