@@ -27,6 +27,8 @@ MAINWINDOW_SRC = Main/MainWindow.cpp
 STUDENT_DIALOG_SRC = Main/StudentRegistrationDialog.cpp
 STUDENT_SEARCH_SRC = Main/StudentSearchDialog.cpp
 GENERIC_LIST_SRC = Main/GenericListDialog.cpp
+AUTH_STORE_SRC = Main/AuthenticationStore.cpp
+AUTH_DIALOG_SRC = Main/AuthenticationDialog.cpp
 MAINWINDOW_HEADER = Main/MainWindow.h
 MAINWINDOW_MOC_SRC = Main/moc_MainWindow.cpp
 
@@ -51,12 +53,14 @@ MAINWINDOW_OBJ = Main/MainWindow.o
 STUDENT_DIALOG_OBJ = Main/StudentRegistrationDialog.o
 STUDENT_SEARCH_OBJ = Main/StudentSearchDialog.o
 GENERIC_LIST_OBJ = Main/GenericListDialog.o
+AUTH_STORE_OBJ = Main/AuthenticationStore.o
+AUTH_DIALOG_OBJ = Main/AuthenticationDialog.o
 MAINWINDOW_MOC_OBJ = Main/moc_MainWindow.o
 GENERICLIST_MOC_OBJ = Main/moc_GenericListDialog.o
 STUDENT_DIALOG_MOC_OBJ = Main/moc_StudentRegistrationDialog.o
 STUDENT_SEARCH_MOC_OBJ = Main/moc_StudentSearchDialog.o
 
-OBJECTS = $(PERSON_OBJ) $(STUDENT_OBJ) $(FACULTY_OBJ) $(DEPARTMENT_OBJ) $(ADMINISTRATION_OBJ) $(ACADEMIC_OBJ) $(RESIDENCE_OBJ) $(SPORTS_OBJ) $(SPORTS_AFFILIATION_OBJ) $(EXAM_OBJ) $(EXAM_SECTION_OBJ) $(EXAM_SCHEDULE_OBJ) $(MAIN_OBJ) $(MAINWINDOW_OBJ) $(STUDENT_DIALOG_OBJ) $(STUDENT_SEARCH_OBJ) $(GENERIC_LIST_OBJ) $(MAINWINDOW_MOC_OBJ)
+OBJECTS = $(PERSON_OBJ) $(STUDENT_OBJ) $(FACULTY_OBJ) $(DEPARTMENT_OBJ) $(ADMINISTRATION_OBJ) $(ACADEMIC_OBJ) $(RESIDENCE_OBJ) $(SPORTS_OBJ) $(SPORTS_AFFILIATION_OBJ) $(EXAM_OBJ) $(EXAM_SECTION_OBJ) $(EXAM_SCHEDULE_OBJ) $(MAIN_OBJ) $(MAINWINDOW_OBJ) $(STUDENT_DIALOG_OBJ) $(STUDENT_SEARCH_OBJ) $(GENERIC_LIST_OBJ) $(AUTH_STORE_OBJ) $(AUTH_DIALOG_OBJ) $(MAINWINDOW_MOC_OBJ)
 OBJECTS += $(GENERICLIST_MOC_OBJ) $(STUDENT_DIALOG_MOC_OBJ) $(STUDENT_SEARCH_MOC_OBJ)
 
 # Default target
@@ -169,6 +173,14 @@ Main/StudentSearchDialog.o: Main/StudentSearchDialog.cpp Main/StudentSearchDialo
 Main/GenericListDialog.o: Main/GenericListDialog.cpp Main/GenericListDialog.h
 	$(CXX) $(CXXFLAGS) -c Main/GenericListDialog.cpp -o Main/GenericListDialog.o
 	@echo "Compiled Main/GenericListDialog.cpp"
+
+Main/AuthenticationStore.o: Main/AuthenticationStore.cpp Main/AuthenticationStore.h
+	$(CXX) $(CXXFLAGS) -c Main/AuthenticationStore.cpp -o Main/AuthenticationStore.o
+	@echo "Compiled Main/AuthenticationStore.cpp"
+
+Main/AuthenticationDialog.o: Main/AuthenticationDialog.cpp Main/AuthenticationDialog.h Main/AuthenticationStore.h
+	$(CXX) $(CXXFLAGS) -c Main/AuthenticationDialog.cpp -o Main/AuthenticationDialog.o
+	@echo "Compiled Main/AuthenticationDialog.cpp"
 
 # Run the program
 run: $(TARGET)
