@@ -209,3 +209,17 @@ bool AuthenticationStore::authenticate(const QString &username, const QString &p
 
 bool AuthenticationStore::changePassword(const QString &username, const QString &currentPassword,
                                          const QString &newPassword, QString *error) {
+    AuthenticatedUser ignored;
+    if (!authenticate(username, currentPassword, &ignored, error)) return false;
+    if (newPassword.size() < 10) {
+        setError(error, "Password must be at least 10 characters.");
+        return false;
+    }
+    QByteArray salt(SaltLength, Qt::Uninitialized);
+    if (RAND_bytes(reinterpret_cast<unsigned char *>(salt.data()), salt.size()) != 1) {
+        setError(error, "Could not generate secure account credentials.");
+        return false;
+    }
+    QByteArray hash;
+    if (!derivePasswordHash(newPassword, salt, &hash)) {
+        setError(error, "Could not secure the account password.");
