@@ -1392,10 +1392,22 @@ void MainWindow::onInitializeExamSchedule() {
     if (!ok || semester.isEmpty()) return;
     const std::string key = department.toStdString();
     if (examSchedules.count(key)) {
+        QMessageBox::warning(this, "Schedule exists", "An exam schedule already exists for this department.");
+        return;
+    }
+    const QString id = QString("%1-%2").arg(department, semester).replace(QRegularExpression("[^A-Za-z0-9-]"), "-");
+    examSchedules[key] = new ExamSchedule(id.toStdString(), key, semester.toStdString());
+    QMessageBox::information(this, "Schedule created", QString("The %1 exam schedule is ready.").arg(department));
 }
 
 void MainWindow::onCreateExamSection() {
-    QMessageBox::information(this, "Create Exam Section", "Exam section creation feature available.");
+    QStringList available;
+    for (const auto &entry : examSchedules) available.append(QString::fromStdString(entry.first));
+    if (available.isEmpty()) { QMessageBox::information(this, "Create exam section", "Initialize a department schedule first."); return; }
+    bool ok = false;
+    const QString department = QInputDialog::getItem(this, "Create exam section", "Department:", available, 0, false, &ok);
+    if (!ok || department.isEmpty()) return;
+    ExamSchedule *schedule = examSchedules.at(department.toStdString());
 }
 
 void MainWindow::onAddExam() {
