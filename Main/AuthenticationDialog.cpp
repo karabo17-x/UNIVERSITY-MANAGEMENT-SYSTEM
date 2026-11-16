@@ -72,3 +72,17 @@ bool AuthenticationDialog::run(AuthenticationStore *store, AuthenticatedUser *us
 
     AuthenticatedUser authenticated;
     QObject::connect(buttons, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
+    QObject::connect(buttons, &QDialogButtonBox::accepted, &dialog, [&] {
+        QString error;
+        if (firstRun) {
+            if (password->text() != confirmation->text()) {
+                status->setText("The passwords do not match.");
+                return;
+            }
+            if (!store->createAccount(username->text(), password->text(), fullName->text(), "administrator", {}, &error)) {
+                status->setText(error);
+                return;
+            }
+            authenticated = {username->text().trimmed().toLower(), fullName->text().trimmed(), "administrator", {}};
+        } else if (!store->authenticate(username->text(), password->text(), &authenticated, &error)) {
+            status->setText(error);
