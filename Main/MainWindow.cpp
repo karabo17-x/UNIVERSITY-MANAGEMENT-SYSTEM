@@ -486,6 +486,19 @@ int MainWindow::roleMaskForLabel(const QString &label) const {
         label == "Course mapping" || label == "Department faculty" || label == "Faculty" || label == "Departments")
         return lecturer | administrator;
     if (label == "My Residences") return student | residence | administrator;
+    if (label == "Assign residence") return residence | administrator;
+    if (label == "Campus Sports" || label == "Student sports" || label == "Affiliate sport") return student | sports | administrator;
+    if (label == "My Exams" || label == "Exam sections") return student | lecturer | registrar | administrator;
+    if (label == "Enroll exam section") return student | registrar | administrator;
+    if (label == "My account") return everyone;
+    if (label == "System overview" || label == "Manage accounts") return administrator;
+    if (label == "Sport participants") return sports | administrator;
+    if (label == "Affiliate sport" || label == "Remove sport affiliation") return student | sports | administrator;
+    if (label == "Add faculty" || label == "Assign course" || label == "Payroll" ||
+        label == "Initialize exam schedule" || label == "Create exam section") return administrator;
+    if (label == "Add exam") return lecturer | administrator;
+    return everyone;
+}
 }
 
 void MainWindow::setupLegacyMenu() {
