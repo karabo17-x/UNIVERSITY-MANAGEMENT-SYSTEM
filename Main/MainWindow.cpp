@@ -513,6 +513,20 @@ void MainWindow::applyRoleView() {
         const QStringList descriptions = {
             "Your registration, campus life and academic information.",
             "Teaching tools, course assignments and exam information.",
+            "University operations, people and academic services.",
+            "Student records, registration and exam enrollment.",
+            "Room assignments and residence occupancy.",
+            "Campus sports, affiliations and participant lists."
+        };
+        dashboardSubtitleLabel->setText(descriptions[roleIndex]);
+    }
+
+    for (const auto &action : navigationActions)
+        if (action.button) action.button->setVisible(action.roles & activeRoleMask);
+
+    if (compactNavigation) {
+        compactNavigation->clear();
+        compactNavigation->addItem("Go to…", -1);
 }
 
 void MainWindow::setupLegacyMenu() {
