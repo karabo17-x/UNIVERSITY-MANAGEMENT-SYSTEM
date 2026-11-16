@@ -1065,6 +1065,12 @@ void MainWindow::onViewCourseFacultyMapping() {
         for (const auto &course : courses) {
             mapping.append(QString("%1 — %2 (%3)")
                 .arg(QString::fromStdString(course), QString::fromStdString(member->getName()),
+                     QString::fromStdString(member->getEmployeeId())));
+        }
+    }
+    if (mapping.isEmpty()) mapping.append("No courses have been assigned to faculty yet.");
+    GenericListDialog dialog("Course–Faculty Mapping", mapping, this);
+    dialog.exec();
 }
 
 void MainWindow::onViewDepartments() {
@@ -1152,12 +1158,18 @@ void MainWindow::onAssignResidence() {
         QMessageBox::warning(this, "Error", "Student not found.");
         return;
     }
+    if (!student->getResidenceBlock().empty()) {
+        QMessageBox::information(this, "Residence already assigned",
+            QString("This student already has a room assigned: %1.").arg(QString::fromStdString(student->getResidenceBlock())));
+        return;
+    }
     
     QString roomNo = QInputDialog::getText(this, "Assign Residence", "Enter room number:", QLineEdit::Normal, "", &ok);
     if (ok && !roomNo.isEmpty()) {
         bool isInt;
         int roomNumber = roomNo.toInt(&isInt);
-        if (isInt && roomNumber > 0) {
+        if (isInt && roomNumber > 0 && roomNumber <= hostelA->getTotalRooms()) {
+            if (hostelA->getRoomOccupant(roomNumber)) {
             hostelA->assignRoom(roomNumber, student);
             QMessageBox::information(this, "Success", "Room assigned successfully.");
         } else {
