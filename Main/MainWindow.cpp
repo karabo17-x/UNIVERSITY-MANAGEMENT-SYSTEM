@@ -284,6 +284,20 @@ void MainWindow::setupMainMenu() {
     contentLayout->setSpacing(16);
 
     auto *utilityRow = new QHBoxLayout();
+    compactNavigation = new QComboBox();
+    compactNavigation->setObjectName("compactNavigation");
+    connect(compactNavigation, QOverload<int>::of(&QComboBox::activated), this, [this](int index) {
+        const int actionIndex = compactNavigation->itemData(index).toInt();
+        if (actionIndex >= 0 && actionIndex < navigationActions.size() &&
+            (activeRoleMask & navigationActions[actionIndex].roles)) navigationActions[actionIndex].invoke();
+        compactNavigation->setCurrentIndex(0);
+    });
+    compactNavigation->setVisible(false);
+    utilityRow->addWidget(compactNavigation);
+    sessionLabel = new QLabel();
+    sessionLabel->setObjectName("sessionLabel");
+    utilityRow->addWidget(sessionLabel);
+    portalLabel = new QLabel("Student portal");
     portalLabel->setObjectName("portalLabel");
     auto *helpButton = new QPushButton("?");
     helpButton->setObjectName("utilityButton");
