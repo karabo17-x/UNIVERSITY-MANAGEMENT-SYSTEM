@@ -240,6 +240,7 @@ void MainWindow::setupMainMenu() {
             if (activeRoleMask & allowedRoles) action();
         });
         sidebarLayout->addWidget(button);
+        navigationActions.append({text, allowedRoles, action, button});
     };
 
     addNavigation("Dashboard", [] {}, true);
@@ -249,7 +250,17 @@ void MainWindow::setupMainMenu() {
     addNavigation("My Residences", [this] { onViewResidenceOccupancy(); });
     addNavigation("Campus Sports", [this] { onViewSports(); });
     addNavigation("My Exams", [this] { onViewExamSchedule(); });
-    addNavigation("My Profile", [this] { onViewSystemInfo(); });
+    addNavigation("My account", [this] { onViewMyAccount(); });
+    addNavigation("System overview", [this] { onViewSystemInfo(); });
+    addNavigation("Manage accounts", [this] { onManageAccounts(); });
+    addNavigation("Search students", [this] { onSearchStudent(); });
+    addNavigation("Deregister student", [this] { onDeregisterStudent(); });
+    addNavigation("View marks", [this] { onViewMarks(); });
+    addNavigation("Faculty", [this] { onViewFaculty(); });
+    addNavigation("Departments", [this] { onViewDepartments(); });
+    addNavigation("Assign residence", [this] { onAssignResidence(); });
+    addNavigation("Sport participants", [this] { onViewSportParticipants(); });
+    addNavigation("Exam sections", [this] { onViewExamSectionDetails(); });
     sidebarLayout->addStretch();
     addNavigation("Sign out", [this] { onBackToMenu(); });
 
