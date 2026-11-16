@@ -154,3 +154,17 @@ bool AuthenticationStore::createAccount(const QString &username, const QString &
     const QByteArray linkUtf8 = linkedId.trimmed().toUtf8();
     const QByteArray saltHex = salt.toHex();
     const QByteArray hashHex = hash.toHex();
+    sqlite3_bind_text(statement, 1, cleanUsername.toUtf8().constData(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_text(statement, 2, name.constData(), name.size(), SQLITE_TRANSIENT);
+    sqlite3_bind_text(statement, 3, roleUtf8.constData(), roleUtf8.size(), SQLITE_TRANSIENT);
+    sqlite3_bind_text(statement, 4, linkUtf8.constData(), linkUtf8.size(), SQLITE_TRANSIENT);
+    sqlite3_bind_text(statement, 5, saltHex.constData(), saltHex.size(), SQLITE_TRANSIENT);
+    sqlite3_bind_text(statement, 6, hashHex.constData(), hashHex.size(), SQLITE_TRANSIENT);
+    const int result = sqlite3_step(statement);
+    const QString dbError = QString::fromUtf8(sqlite3_errmsg(database));
+    sqlite3_finalize(statement);
+    if (result != SQLITE_DONE) {
+        setError(error, dbError.contains("UNIQUE", Qt::CaseInsensitive) ? "That username is already in use." : dbError);
+        return false;
+    }
+    return true;
