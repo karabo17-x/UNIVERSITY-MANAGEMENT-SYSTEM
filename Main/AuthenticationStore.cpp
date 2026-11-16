@@ -140,3 +140,17 @@ bool AuthenticationStore::createAccount(const QString &username, const QString &
     QByteArray hash;
     if (!derivePasswordHash(password, salt, &hash)) {
         setError(error, "Could not secure the account password.");
+        return false;
+    }
+
+    sqlite3_stmt *statement = nullptr;
+    const char *sql = "INSERT INTO accounts(username,full_name,role,linked_id,password_salt,password_hash) VALUES(?,?,?,?,?,?)";
+    if (sqlite3_prepare_v2(database, sql, -1, &statement, nullptr) != SQLITE_OK) {
+        setError(error, QString::fromUtf8(sqlite3_errmsg(database)));
+        return false;
+    }
+    const QByteArray name = cleanName.toUtf8();
+    const QByteArray roleUtf8 = role.toUtf8();
+    const QByteArray linkUtf8 = linkedId.trimmed().toUtf8();
+    const QByteArray saltHex = salt.toHex();
+    const QByteArray hashHex = hash.toHex();
