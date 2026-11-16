@@ -126,3 +126,17 @@ bool AuthenticationStore::createAccount(const QString &username, const QString &
     static const QStringList acceptedRoles = {"student", "lecturer", "administrator", "registrar", "residence", "sports"};
     if (!usernamePattern.match(cleanUsername).hasMatch()) {
         setError(error, "Username must be 3–64 characters and use letters, numbers, dots, underscores or hyphens.");
+        return false;
+    }
+    if (password.size() < 10) { setError(error, "Password must be at least 10 characters."); return false; }
+    if (cleanName.isEmpty()) { setError(error, "Enter the account holder's full name."); return false; }
+    if (!acceptedRoles.contains(role)) { setError(error, "Choose a valid account role."); return false; }
+
+    QByteArray salt(SaltLength, Qt::Uninitialized);
+    if (RAND_bytes(reinterpret_cast<unsigned char *>(salt.data()), salt.size()) != 1) {
+        setError(error, "Could not generate secure account credentials.");
+        return false;
+    }
+    QByteArray hash;
+    if (!derivePasswordHash(password, salt, &hash)) {
+        setError(error, "Could not secure the account password.");
