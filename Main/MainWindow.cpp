@@ -1438,6 +1438,19 @@ void MainWindow::onAddExam() {
     ExamSection *section = schedule->getExamSectionById(sectionId.toStdString());
     const QString id = QInputDialog::getText(this, "Add exam", "Exam ID:", QLineEdit::Normal, {}, &ok).trimmed();
     if (!ok || id.isEmpty()) return;
+    if (section->getExamById(id.toStdString())) { QMessageBox::warning(this, "Duplicate exam", "That exam ID already exists in this section."); return; }
+    const QString name = QInputDialog::getText(this, "Add exam", "Exam or course name:", QLineEdit::Normal, {}, &ok).trimmed();
+    if (!ok || name.isEmpty()) return;
+    const QString type = QInputDialog::getItem(this, "Add exam", "Type:", {"Midterm", "Final", "Quiz", "Assignment"}, 0, false, &ok);
+    if (!ok || type.isEmpty()) return;
+    const QString date = QInputDialog::getText(this, "Add exam", "Date (DD/MM/YYYY):", QLineEdit::Normal, {}, &ok).trimmed();
+    if (!ok) return;
+    const QDate parsedDate = QDate::fromString(date, "dd/MM/yyyy");
+    if (!parsedDate.isValid() || parsedDate.toString("dd/MM/yyyy") != date) { QMessageBox::warning(this, "Invalid date", "Enter a valid date as DD/MM/YYYY."); return; }
+    const QString time = QInputDialog::getText(this, "Add exam", "Time (HH:MM):", QLineEdit::Normal, "09:00", &ok).trimmed();
+    if (!ok) return;
+    if (!QTime::fromString(time, "HH:mm").isValid()) { QMessageBox::warning(this, "Invalid time", "Enter a valid time as HH:MM."); return; }
+    const int duration = QInputDialog::getInt(this, "Add exam", "Duration in minutes:", 120, 1, 1440, 1, &ok);
 }
 
 void MainWindow::onEnrollExamSection() {
