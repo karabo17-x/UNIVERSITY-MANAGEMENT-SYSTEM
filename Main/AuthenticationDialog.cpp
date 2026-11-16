@@ -31,3 +31,17 @@ bool AuthenticationDialog::run(AuthenticationStore *store, AuthenticatedUser *us
     dialog.setWindowTitle(firstRun ? "Create the first administrator account" : "Sign in to University Management System");
 
     auto *layout = new QVBoxLayout(&dialog);
+    layout->setContentsMargins(28, 24, 28, 24);
+    layout->setSpacing(14);
+    auto *title = new QLabel(firstRun ? "Set up your university administrator" : "Sign in");
+    title->setStyleSheet("font-size: 22px; font-weight: 700; color: #174f83;");
+    layout->addWidget(title);
+    auto *message = new QLabel(firstRun
+        ? "This first account will manage staff accounts and university services. Choose a strong password."
+        : "Use the username and password assigned to your university account.");
+    message->setWordWrap(true);
+    message->setStyleSheet("color: #4b5563;");
+    layout->addWidget(message);
+
+    auto *form = new QFormLayout();
+    form->setSpacing(10);
