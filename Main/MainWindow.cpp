@@ -71,6 +71,11 @@ bool MainWindow::authenticateSession() {
     AuthenticatedUser user;
     if (!AuthenticationDialog::run(authenticationStore, &user, this)) return false;
     currentUser = user;
+    activeRoleIndex = roleIndexForCode(user.role);
+    activeRoleMask = 1 << activeRoleIndex;
+    applyRoleView();
+    stackedWidget->setCurrentWidget(menuWidget);
+    return true;
 }
 
 void MainWindow::initializeSystemData() {
@@ -88,22 +93,25 @@ void MainWindow::initializeSystemData() {
     departments.push_back(new Engineering("DEPT006", "Dr. Robert Davis"));
     departments.push_back(new InformationTechnology("DEPT007", "Dr. Lisa Anderson"));
     departments.push_back(new Cybersecurity("DEPT008", "Prof. David Martinez"));
+    for (auto *department : departments) admin->addDepartment(department);
 }
 
 void MainWindow::setupWelcomeScreen() {
     welcomeWidget = new QWidget();
+    welcomeWidget->setObjectName("welcomeScreen");
+    welcomeWidget->setStyleSheet("QWidget#welcomeScreen { background-color: #f5f7fb; }");
     QVBoxLayout *layout = new QVBoxLayout(welcomeWidget);
     layout->setContentsMargins(40, 40, 40, 40);
     layout->setSpacing(20);
     
     // Title
     QLabel *mainTitle = new QLabel("Welcome to University Management System");
-    mainTitle->setStyleSheet("font-size: 32px; font-weight: bold; color: #1a5490;");
+    mainTitle->setStyleSheet("font-size: 32px; font-weight: bold; color: #174f83;");
     mainTitle->setAlignment(Qt::AlignCenter);
     
     // Subtitle
     QLabel *subtitle = new QLabel("Professional Management Solution for Higher Education");
-    subtitle->setStyleSheet("font-size: 16px; color: #555555;");
+    subtitle->setStyleSheet("font-size: 16px; color: #4b5563;");
     subtitle->setAlignment(Qt::AlignCenter);
     
     // Description
@@ -117,7 +125,7 @@ void MainWindow::setupWelcomeScreen() {
         "• Examination Scheduling and Management\n\n"
         "Click 'Enter System' to access the management dashboard."
     );
-    description->setStyleSheet("font-size: 13px; color: #333333; line-height: 1.6;");
+    description->setStyleSheet("font-size: 14px; color: #374151; line-height: 1.6;");
     description->setAlignment(Qt::AlignCenter);
     description->setWordWrap(true);
     
