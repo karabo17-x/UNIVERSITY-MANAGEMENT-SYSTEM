@@ -499,6 +499,20 @@ int MainWindow::roleMaskForLabel(const QString &label) const {
     if (label == "Add exam") return lecturer | administrator;
     return everyone;
 }
+
+void MainWindow::applyRoleView() {
+    const QStringList roleNames = {"Student", "Lecturer", "Administrator", "Registrar", "Residence staff", "Sports coordinator"};
+    const int roleIndex = qBound(0, activeRoleIndex, RoleCount - 1);
+    const QString roleName = roleNames[roleIndex];
+    activeRoleMask = 1 << roleIndex;
+
+    if (sessionLabel) sessionLabel->setText(QString("%1 · %2").arg(currentUser.fullName, roleName));
+    if (portalLabel) portalLabel->setText(roleName.toUpper() + " PORTAL");
+    if (dashboardHeadingLabel) dashboardHeadingLabel->setText(roleName + " dashboard");
+    if (dashboardSubtitleLabel) {
+        const QStringList descriptions = {
+            "Your registration, campus life and academic information.",
+            "Teaching tools, course assignments and exam information.",
 }
 
 void MainWindow::setupLegacyMenu() {
