@@ -8,6 +8,7 @@
 #include <QPalette>
 #include <QColor>
 #include <QFont>
+#include <QDoubleValidator>
 #include <memory>
 #include "../Student/Student.h"
 
@@ -16,7 +17,8 @@ StudentRegistrationDialog::StudentRegistrationDialog(Administration* admin, QWid
     setWindowTitle("Register New Student");
     setModal(true);
     setWindowFlag(Qt::WindowContextHelpButtonHint, false);
-    setFixedSize(560, 460);
+    resize(560, 460);
+    setMinimumSize(420, 400);
     setObjectName("studentRegistrationDialog");
     setupUI();
 }
@@ -80,6 +82,7 @@ void StudentRegistrationDialog::setupUI() {
     gridLayout->addWidget(new QLabel("GPA:"), 6, 0);
     gpaEdit = new QLineEdit("0.0");
     setupLineEdit(gpaEdit);
+    auto *gpaValidator = new QDoubleValidator(0.0, 4.0, 2, gpaEdit);
     gridLayout->addWidget(gpaEdit, 6, 1);
     
     mainLayout->addLayout(gridLayout);

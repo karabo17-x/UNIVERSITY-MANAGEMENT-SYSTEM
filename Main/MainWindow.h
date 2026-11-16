@@ -127,6 +127,13 @@ protected:
     QGridLayout *dashboardGrid = nullptr;
     QGridLayout *quickActionGrid = nullptr;
     QWidget *calendarCard = nullptr;
+    QWidget *updatesCard = nullptr;
+    QWidget *actionsCard = nullptr;
+    QVector<PortalAction> navigationActions;
+    QVector<PortalAction> quickActions;
+    int activeRoleMask = 1;
+    int activeRoleIndex = 0;
+    AuthenticatedUser currentUser;
 
     // Business Logic Objects
     Administration *admin;
@@ -135,6 +142,8 @@ protected:
     SportsAffiliation *sportsAffiliation;
     std::vector<Department*> departments;
     std::vector<Faculty*> faculty;
+    std::map<std::string, ExamSchedule*> examSchedules;
+    AuthenticationStore *authenticationStore = nullptr;
 
     // Helper methods
     void initializeSystemData();
