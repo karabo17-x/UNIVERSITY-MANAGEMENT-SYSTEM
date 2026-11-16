@@ -830,6 +830,8 @@ void MainWindow::applyStylesheet() {
         QLabel#emptyState { color: #4e4f57; padding: 16px 10px; font-size: 14px; }
         QPushButton#quickAction { background: #f7f3f9; color: #6f168d; border: 1px solid #dfd1e7; border-radius: 6px; font-weight: 600; padding: 7px; }
         QPushButton#quickAction:hover { background: #e9dcee; }
+        QComboBox#compactNavigation { min-height: 34px; min-width: 170px; padding: 2px 8px; border: 1px solid #ddd6e3; border-radius: 6px; background: white; color: #4d3b57; }
+        QComboBox#compactNavigation:focus { border: 2px solid #6f168d; }
         QLineEdit { color: #202027; background-color: #ffffff; border: 1px solid #c9c9d0; border-radius: 4px; padding: 6px; selection-background-color: #6f168d; }
         QLineEdit:focus { border: 2px solid #6f168d; }
         QDialog { background-color: #f5f5f7; }
@@ -887,6 +889,11 @@ void MainWindow::onDeregisterStudent() {
     if (ok && !selectedId.isEmpty()) {
         Student* student = admin->searchStudent(selectedId.toStdString());
         if (student) {
+            const auto choice = QMessageBox::question(this, "Confirm deregistration",
+                QString("Remove %1 (%2) from the student register?")
+                    .arg(QString::fromStdString(student->getName()), selectedId),
+                QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
+            if (choice != QMessageBox::Yes) return;
             admin->deregisterStudent(selectedId.toStdString());
             QMessageBox::information(this, "Success", "Student deregistered successfully.");
         }
@@ -944,7 +951,11 @@ void MainWindow::onViewMarks() {
 }
 
 void MainWindow::onAddFaculty() {
-    QMessageBox::information(this, "Add Faculty", "Faculty management features coming soon.");
+    bool ok = false;
+    const QString id = QInputDialog::getText(this, "Add faculty", "Faculty record ID:", QLineEdit::Normal, {}, &ok).trimmed();
+    if (!ok || id.isEmpty()) return;
+    const QString employeeId = QInputDialog::getText(this, "Add faculty", "Employee ID:", QLineEdit::Normal, {}, &ok).trimmed();
+    if (!ok || employeeId.isEmpty()) return;
 }
 
 void MainWindow::onViewFaculty() {
