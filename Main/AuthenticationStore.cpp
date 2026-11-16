@@ -85,3 +85,17 @@ bool AuthenticationStore::isReady() const {
 
 QString AuthenticationStore::lastError() const {
     return errorMessage;
+}
+
+int AuthenticationStore::accountCount() const {
+    if (!database) return 0;
+    sqlite3_stmt *statement = nullptr;
+    if (sqlite3_prepare_v2(database, "SELECT COUNT(*) FROM accounts", -1, &statement, nullptr) != SQLITE_OK) return 0;
+    int count = 0;
+    if (sqlite3_step(statement) == SQLITE_ROW) count = sqlite3_column_int(statement, 0);
+    sqlite3_finalize(statement);
+    return count;
+}
+
+QStringList AuthenticationStore::accountSummaries() const {
+    QStringList accounts;
