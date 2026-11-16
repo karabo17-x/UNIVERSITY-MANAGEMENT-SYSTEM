@@ -458,6 +458,20 @@ void MainWindow::updateResponsiveLayout() {
         dashboardGrid->setColumnStretch(1, 0);
         dashboardGrid->setRowStretch(0, 1);
         dashboardGrid->setRowStretch(1, 0);
+        dashboardGrid->setRowStretch(2, 0);
+    } else {
+        dashboardGrid->addWidget(calendarCard, 0, 0, 2, 1);
+        dashboardGrid->addWidget(updatesCard, 0, 1);
+        dashboardGrid->addWidget(actionsCard, 1, 1);
+        dashboardGrid->setColumnStretch(0, 6);
+        dashboardGrid->setColumnStretch(1, 5);
+        dashboardGrid->setRowStretch(0, 3);
+        dashboardGrid->setRowStretch(1, 1);
+    }
+}
+
+int MainWindow::roleMaskForLabel(const QString &label) const {
+    const int student = 1 << StudentRole;
 }
 
 void MainWindow::setupLegacyMenu() {
