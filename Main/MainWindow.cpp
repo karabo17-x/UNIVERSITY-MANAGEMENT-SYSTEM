@@ -1586,6 +1586,20 @@ void MainWindow::onViewMyAccount() {
     const QString newPassword = QInputDialog::getText(this, "Change password", "New password (at least 10 characters):", QLineEdit::Password, {}, &ok);
     if (!ok) return;
     const QString confirmation = QInputDialog::getText(this, "Confirm password", "Repeat the new password:", QLineEdit::Password, {}, &ok);
+    if (!ok) return;
+    if (newPassword != confirmation) {
+        QMessageBox::warning(this, "Password mismatch", "The new passwords do not match.");
+        return;
+    }
+    QString error;
+    if (!authenticationStore->changePassword(currentUser.username, oldPassword, newPassword, &error)) {
+        QMessageBox::warning(this, "Password not changed", error);
+        return;
+    }
+    QMessageBox::information(this, "Password changed", "Your password has been updated.");
+}
+
+void MainWindow::onManageAccounts() {
 void MainWindow::onBackToMenu() {
     stackedWidget->setCurrentWidget(welcomeWidget);
 }
