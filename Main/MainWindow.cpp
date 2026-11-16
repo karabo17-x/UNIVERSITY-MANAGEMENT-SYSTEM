@@ -411,14 +411,16 @@ void MainWindow::setupMainMenu() {
         {"System overview", (1 << AdministratorRole), [this] { onViewSystemInfo(); }},
         {"Manage accounts", (1 << AdministratorRole), [this] { onManageAccounts(); }}
     };
-    for (int i = 0; i < static_cast<int>(actions.size()); ++i) {
-        auto *button = new QPushButton(actions[i].first);
+    for (const auto &action : actions) {
+        auto *button = new QPushButton(action.label);
         button->setObjectName("quickAction");
         button->setMinimumHeight(42);
-        connect(button, &QPushButton::clicked, this, actions[i].second);
-        actionGrid->addWidget(button, i / 2, i % 2);
+        connect(button, &QPushButton::clicked, this, [this, action] {
+            if (activeRoleMask & action.roles) action.invoke();
+        });
+        quickActions.append({action.label, action.roles, action.invoke, button});
     }
-    actionsLayout->addLayout(actionGrid);
+    actionsLayout->addLayout(quickActionGrid);
     dashboardGrid->addWidget(actionsCard, 1, 1);
 
     dashboardGrid->setColumnStretch(0, 6);
@@ -427,8 +429,6 @@ void MainWindow::setupMainMenu() {
     dashboardGrid->setRowStretch(1, 1);
     contentLayout->addLayout(dashboardGrid, 1);
 
-    rootLayout->addWidget(sidebar);
-    rootLayout->addWidget(content, 1);
     stackedWidget->addWidget(menuWidget);
 }
 
