@@ -397,6 +397,19 @@ void MainWindow::setupMainMenu() {
         {"Student directory", (1 << RegistrarRole) | (1 << AdministratorRole), [this] { onViewStudents(); }},
         {"Assign marks", (1 << LecturerRole) | (1 << AdministratorRole), [this] { onAssignMarks(); }},
         {"View marks", (1 << LecturerRole) | (1 << AdministratorRole), [this] { onViewMarks(); }},
+        {"My exams", (1 << StudentRole) | (1 << LecturerRole) | (1 << RegistrarRole) | (1 << AdministratorRole), [this] { onViewExamSchedule(); }},
+        {"Enroll in exams", (1 << StudentRole) | (1 << RegistrarRole) | (1 << AdministratorRole), [this] { onEnrollExamSection(); }},
+        {"Campus sports", (1 << StudentRole) | (1 << SportsRole) | (1 << AdministratorRole), [this] { onViewSports(); }},
+        {"My sports", (1 << StudentRole) | (1 << SportsRole) | (1 << AdministratorRole), [this] { onViewStudentSports(); }},
+        {"My residence", (1 << StudentRole), [this] { onViewResidenceOccupancy(); }},
+        {"Add faculty", (1 << AdministratorRole), [this] { onAddFaculty(); }},
+        {"Departments", (1 << LecturerRole) | (1 << AdministratorRole), [this] { onViewDepartments(); }},
+        {"Search students", (1 << RegistrarRole) | (1 << AdministratorRole), [this] { onSearchStudent(); }},
+        {"Assign residence", (1 << ResidenceRole) | (1 << AdministratorRole), [this] { onAssignResidence(); }},
+        {"Residence occupancy", (1 << ResidenceRole) | (1 << AdministratorRole), [this] { onViewResidenceOccupancy(); }},
+        {"Sport participants", (1 << SportsRole) | (1 << AdministratorRole), [this] { onViewSportParticipants(); }},
+        {"System overview", (1 << AdministratorRole), [this] { onViewSystemInfo(); }},
+        {"Manage accounts", (1 << AdministratorRole), [this] { onManageAccounts(); }}
     };
     for (int i = 0; i < static_cast<int>(actions.size()); ++i) {
         auto *button = new QPushButton(actions[i].first);
