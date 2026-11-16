@@ -1202,6 +1202,8 @@ void MainWindow::onViewResidenceOccupancy() {
     }
     GenericListDialog dialog(QString("%1 · %2/%3 occupied")
         .arg(QString::fromStdString(hostelA->getResidenceName()))
+        .arg(hostelA->getOccupiedRooms()).arg(hostelA->getTotalRooms()), rooms, this);
+    dialog.exec();
 }
 
 void MainWindow::onViewSports() {
@@ -1235,9 +1237,15 @@ void MainWindow::onAffiliateSport() {
         return;
     }
     
-    QStringList studentIds;
-    for (auto student : students) {
-        studentIds.append(QString::fromStdString(student->getId()));
+    QString studentId;
+    bool ok = false;
+    if (activeRoleIndex == StudentRole) {
+        studentId = currentUser.linkedId;
+        if (studentId.isEmpty() || !admin->searchStudent(studentId.toStdString())) {
+            QMessageBox::warning(this, "Student account", "Your account must be linked to an active student record before joining a sport.");
+            return;
+        }
+    } else {
     }
     
     QStringList sportIds;
