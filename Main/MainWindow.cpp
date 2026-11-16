@@ -1328,6 +1328,17 @@ void MainWindow::onViewSportParticipants() {
     if (ok && !sportId.isEmpty()) {
         Sports *sport = sportsAffiliation->getSport(sportId.toStdString());
         QStringList participants;
+        if (sport) {
+            for (const auto &studentId : sport->getAffiliatedStudents()) {
+                Student *student = admin->searchStudent(studentId);
+                participants.append(student
+                    ? QString("%1 — %2").arg(QString::fromStdString(studentId), QString::fromStdString(student->getName()))
+                    : QString::fromStdString(studentId));
+            }
+        }
+        if (participants.isEmpty()) participants.append("No students are affiliated with this sport yet.");
+        GenericListDialog dialog("Sport Participants", participants, this);
+        dialog.exec();
     }
 }
 
@@ -1338,8 +1349,6 @@ void MainWindow::onRemoveSportAffiliation() {
         return;
     }
     
-    QStringList studentIds;
-    for (auto student : students) {
         studentIds.append(QString::fromStdString(student->getId()));
     }
     
