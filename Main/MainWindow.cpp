@@ -1614,6 +1614,19 @@ void MainWindow::onManageAccounts() {
     const QStringList roleLabels = {"Student", "Lecturer", "Administrator", "Registrar", "Residence staff", "Sports coordinator"};
     const QString roleLabel = QInputDialog::getItem(this, "Create university account", "Role:", roleLabels, 0, false, &ok);
     if (!ok || roleLabel.isEmpty()) return;
+    const QStringList roleCodes = {"student", "lecturer", "administrator", "registrar", "residence", "sports"};
+    const QString role = roleCodes[roleLabels.indexOf(roleLabel)];
+    QString linkedId;
+    if (role == "student" || role == "lecturer") {
+        linkedId = QInputDialog::getText(this, "Link university record", role == "student" ? "Student ID:" : "Employee ID:", QLineEdit::Normal, {}, &ok).trimmed();
+        if (!ok || linkedId.isEmpty()) return;
+        bool found = role == "student" ? admin->searchStudent(linkedId.toStdString()) != nullptr : false;
+        if (role == "lecturer") {
+            for (auto *member : admin->getFacultyList()) if (QString::fromStdString(member->getEmployeeId()) == linkedId) found = true;
+        }
+        if (!found) {
+            QMessageBox::warning(this, "University record not found", role == "student"
+                ? "Register the student before creating this account."
 void MainWindow::onBackToMenu() {
     stackedWidget->setCurrentWidget(welcomeWidget);
 }
