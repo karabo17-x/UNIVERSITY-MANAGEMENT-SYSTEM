@@ -1600,6 +1600,20 @@ void MainWindow::onViewMyAccount() {
 }
 
 void MainWindow::onManageAccounts() {
+    if (activeRoleIndex != AdministratorRole || !authenticationStore) return;
+    QMessageBox accountList(QMessageBox::Information, "University accounts",
+        authenticationStore->accountSummaries().join('\n'), QMessageBox::Close, this);
+    QPushButton *createAccount = accountList.addButton("Create account", QMessageBox::ActionRole);
+    accountList.exec();
+    if (accountList.clickedButton() != createAccount) return;
+    bool ok = false;
+    const QString username = QInputDialog::getText(this, "Create university account", "Username:", QLineEdit::Normal, {}, &ok).trimmed();
+    if (!ok) return;
+    const QString fullName = QInputDialog::getText(this, "Create university account", "Full name:", QLineEdit::Normal, {}, &ok).trimmed();
+    if (!ok) return;
+    const QStringList roleLabels = {"Student", "Lecturer", "Administrator", "Registrar", "Residence staff", "Sports coordinator"};
+    const QString roleLabel = QInputDialog::getItem(this, "Create university account", "Role:", roleLabels, 0, false, &ok);
+    if (!ok || roleLabel.isEmpty()) return;
 void MainWindow::onBackToMenu() {
     stackedWidget->setCurrentWidget(welcomeWidget);
 }
