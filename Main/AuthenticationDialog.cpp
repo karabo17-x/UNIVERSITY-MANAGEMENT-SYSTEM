@@ -17,3 +17,17 @@ QLineEdit *passwordField(QWidget *parent) {
 }
 }
 
+bool AuthenticationDialog::run(AuthenticationStore *store, AuthenticatedUser *user, QWidget *parent) {
+    if (!store || !store->isReady()) {
+        QMessageBox::critical(parent, "Account database unavailable",
+            store ? store->lastError() : "The account database could not be opened.");
+        return false;
+    }
+
+    const bool firstRun = store->accountCount() == 0;
+    QDialog dialog(parent);
+    dialog.setModal(true);
+    dialog.setMinimumWidth(440);
+    dialog.setWindowTitle(firstRun ? "Create the first administrator account" : "Sign in to University Management System");
+
+    auto *layout = new QVBoxLayout(&dialog);
