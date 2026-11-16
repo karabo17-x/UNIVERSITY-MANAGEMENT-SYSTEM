@@ -1408,10 +1408,22 @@ void MainWindow::onCreateExamSection() {
     const QString department = QInputDialog::getItem(this, "Create exam section", "Department:", available, 0, false, &ok);
     if (!ok || department.isEmpty()) return;
     ExamSchedule *schedule = examSchedules.at(department.toStdString());
+    const QString id = QInputDialog::getText(this, "Create exam section", "Section ID:", QLineEdit::Normal, {}, &ok).trimmed();
+    if (!ok || id.isEmpty()) return;
+    if (schedule->getExamSectionById(id.toStdString())) { QMessageBox::warning(this, "Duplicate section", "That section ID already exists."); return; }
+    const QString name = QInputDialog::getText(this, "Create exam section", "Section name:", QLineEdit::Normal, {}, &ok).trimmed();
+    if (!ok || name.isEmpty()) return;
+    const QString invigilator = QInputDialog::getText(this, "Create exam section", "Invigilator:", QLineEdit::Normal, {}, &ok).trimmed();
+    if (!ok || invigilator.isEmpty()) return;
+    const QString room = QInputDialog::getText(this, "Create exam section", "Room:", QLineEdit::Normal, {}, &ok).trimmed();
+    if (!ok || room.isEmpty()) return;
+    const int capacity = QInputDialog::getInt(this, "Create exam section", "Capacity:", 30, 1, 1000, 1, &ok);
+    if (!ok) return;
+    schedule->addExamSection(new ExamSection(id.toStdString(), name.toStdString(), department.toStdString(), invigilator.toStdString(), capacity, room.toStdString()));
+    QMessageBox::information(this, "Section created", QString("%1 was added to the %2 schedule.").arg(name, department));
 }
 
 void MainWindow::onAddExam() {
-    QMessageBox::information(this, "Add Exam", "Exam management feature available.");
 }
 
 void MainWindow::onEnrollExamSection() {
