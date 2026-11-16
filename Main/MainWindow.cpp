@@ -261,6 +261,19 @@ void MainWindow::setupMainMenu() {
     addNavigation("Assign residence", [this] { onAssignResidence(); });
     addNavigation("Sport participants", [this] { onViewSportParticipants(); });
     addNavigation("Exam sections", [this] { onViewExamSectionDetails(); });
+    addNavigation("Add faculty", [this] { onAddFaculty(); });
+    addNavigation("Faculty by department", [this] { onViewFacultyByDept(); });
+    addNavigation("Assign course", [this] { onAssignCourse(); });
+    addNavigation("Course mapping", [this] { onViewCourseFacultyMapping(); });
+    addNavigation("Department faculty", [this] { onViewDeptFaculty(); });
+    addNavigation("Payroll", [this] { onViewPayroll(); });
+    addNavigation("Affiliate sport", [this] { onAffiliateSport(); });
+    addNavigation("Student sports", [this] { onViewStudentSports(); });
+    addNavigation("Remove sport affiliation", [this] { onRemoveSportAffiliation(); });
+    addNavigation("Initialize exam schedule", [this] { onInitializeExamSchedule(); });
+    addNavigation("Create exam section", [this] { onCreateExamSection(); });
+    addNavigation("Add exam", [this] { onAddExam(); });
+    addNavigation("Enroll exam section", [this] { onEnrollExamSection(); });
     sidebarLayout->addStretch();
     addNavigation("Sign out", [this] { onBackToMenu(); });
 
@@ -271,7 +284,6 @@ void MainWindow::setupMainMenu() {
     contentLayout->setSpacing(16);
 
     auto *utilityRow = new QHBoxLayout();
-    auto *portalLabel = new QLabel("Student portal");
     portalLabel->setObjectName("portalLabel");
     auto *helpButton = new QPushButton("?");
     helpButton->setObjectName("utilityButton");
