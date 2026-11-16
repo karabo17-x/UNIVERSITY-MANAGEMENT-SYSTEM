@@ -237,3 +237,11 @@ bool AuthenticationStore::changePassword(const QString &username, const QString 
     sqlite3_bind_text(statement, 2, hashHex.constData(), hashHex.size(), SQLITE_TRANSIENT);
     sqlite3_bind_text(statement, 3, normalized.constData(), normalized.size(), SQLITE_TRANSIENT);
     const int result = sqlite3_step(statement);
+    const QString dbError = QString::fromUtf8(sqlite3_errmsg(database));
+    sqlite3_finalize(statement);
+    if (result != SQLITE_DONE) {
+        setError(error, dbError);
+        return false;
+    }
+    return true;
+}
