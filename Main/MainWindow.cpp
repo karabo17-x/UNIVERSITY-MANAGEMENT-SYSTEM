@@ -541,6 +541,19 @@ void MainWindow::applyRoleView() {
     for (const auto &action : quickActions) {
         const bool visible = action.roles & activeRoleMask;
         if (action.button) action.button->setVisible(visible);
+        if (visible && quickActionGrid) quickActionGrid->addWidget(action.button, visibleAction / 2, visibleAction % 2);
+        if (visible) ++visibleAction;
+    }
+}
+
+int MainWindow::roleIndexForCode(const QString &role) const {
+    if (role == "student") return StudentRole;
+    if (role == "lecturer") return LecturerRole;
+    if (role == "administrator") return AdministratorRole;
+    if (role == "registrar") return RegistrarRole;
+    if (role == "residence") return ResidenceRole;
+    if (role == "sports") return SportsRole;
+    return AdministratorRole;
 }
 
 void MainWindow::setupLegacyMenu() {
@@ -797,6 +810,7 @@ void MainWindow::applyStylesheet() {
         QPushButton#navButton:hover { background: #f2edf5; color: #6f168d; }
         QPushButton#navButtonActive { background: #f0e7f4; color: #6f168d; font-weight: 700; border-left: 3px solid #6f168d; }
         QLabel#portalLabel { color: #8a8a92; font-size: 13px; }
+        QLabel#sessionLabel { color: #4d3b57; font-size: 13px; font-weight: 600; padding: 0 8px; }
         QPushButton#utilityButton { min-width: 34px; max-width: 34px; min-height: 34px; max-height: 34px; border: 0; border-radius: 7px; background: #e4e4e7; color: #6f168d; font-weight: 700; }
         QPushButton#utilityButton:hover { background: #d8c7e1; }
         QLabel#dashboardHeading { color: #34343a; font-size: 42px; font-weight: 800; }
