@@ -1641,8 +1641,14 @@ void MainWindow::onManageAccounts() {
     }
     QString error;
     if (!authenticationStore->createAccount(username, password, fullName, role, linkedId, &error)) {
+        QMessageBox::warning(this, "Account not created", error);
+        return;
+    }
+    QMessageBox::information(this, "Account created", QString("The %1 account for %2 is ready. Share the temporary password directly with the account holder.").arg(roleLabel, fullName));
+}
+
 void MainWindow::onBackToMenu() {
-    stackedWidget->setCurrentWidget(welcomeWidget);
+    if (!authenticateSession()) qApp->quit();
 }
 
 void MainWindow::onExit() {

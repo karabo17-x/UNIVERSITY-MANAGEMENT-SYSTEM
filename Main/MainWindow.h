@@ -8,6 +8,12 @@
 #include <QLabel>
 #include <QStackedWidget>
 #include <QListWidget>
+#include <QComboBox>
+#include <QFrame>
+#include <QGridLayout>
+#include <QVector>
+#include <functional>
+#include <map>
 #include <vector>
 #include "StudentRegistrationDialog.h"
 #include "StudentSearchDialog.h"
