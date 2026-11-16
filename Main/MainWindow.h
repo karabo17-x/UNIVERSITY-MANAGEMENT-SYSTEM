@@ -18,6 +18,7 @@
 #include "StudentRegistrationDialog.h"
 #include "StudentSearchDialog.h"
 #include "GenericListDialog.h"
+#include "AuthenticationStore.h"
 #include "../Person/Person.h"
 #include "../Student/Student.h"
 #include "../Faculty/Faculty.h"
@@ -37,6 +38,7 @@ class MainWindow : public QMainWindow {
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
+    bool authenticateSession();
 
 private slots:
     // Student Management
@@ -82,16 +84,28 @@ private slots:
 
     // System
     void onViewSystemInfo();
+    void onViewMyAccount();
+    void onManageAccounts();
     void onExit();
     void onBackToMenu();
 
 private:
+    enum PortalRole { StudentRole, LecturerRole, AdministratorRole, RegistrarRole, ResidenceRole, SportsRole, RoleCount };
+    struct PortalAction {
+        QString label;
+        int roles;
+        std::function<void()> invoke;
+        QPushButton *button = nullptr;
+    };
+
     // Setup methods
     void setupWelcomeScreen();
     void setupMainMenu();
     void setupLegacyMenu();
     void createMenuButtons();
     void applyStylesheet();
+    void updateResponsiveLayout();
+    void applyRoleView();
 
     // UI Components
     QStackedWidget *stackedWidget;
