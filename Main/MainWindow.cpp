@@ -1026,6 +1026,12 @@ void MainWindow::onViewFacultyByDept() {
                 facultyItems.append(QString("%1 | %2 | %3")
                     .arg(QString::fromStdString(member->getEmployeeId()),
                          QString::fromStdString(member->getName()),
+                         QString::fromStdString(member->getDesignation())));
+            }
+        }
+        if (facultyItems.isEmpty()) facultyItems.append("No faculty members are assigned to this department.");
+        GenericListDialog dialog("Faculty in " + selectedDept, facultyItems, this);
+        dialog.exec();
     }
 }
 
@@ -1053,8 +1059,12 @@ void MainWindow::onAssignCourse() {
 }
 
 void MainWindow::onViewCourseFacultyMapping() {
-    admin->displayCourseFacultyMapping();
-    QMessageBox::information(this, "Course-Faculty Mapping", "Mapping displayed in console.");
+    QStringList mapping;
+    for (auto *member : admin->getFacultyList()) {
+        const auto courses = member->getCoursesTaught();
+        for (const auto &course : courses) {
+            mapping.append(QString("%1 — %2 (%3)")
+                .arg(QString::fromStdString(course), QString::fromStdString(member->getName()),
 }
 
 void MainWindow::onViewDepartments() {
