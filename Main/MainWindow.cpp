@@ -527,6 +527,20 @@ void MainWindow::applyRoleView() {
     if (compactNavigation) {
         compactNavigation->clear();
         compactNavigation->addItem("Go to…", -1);
+        for (int i = 0; i < navigationActions.size(); ++i) {
+            const auto &action = navigationActions[i];
+            if (action.roles & activeRoleMask) compactNavigation->addItem(action.label, i);
+        }
+    }
+
+    while (quickActionGrid && quickActionGrid->count()) {
+        QLayoutItem *item = quickActionGrid->takeAt(0);
+        delete item;
+    }
+    int visibleAction = 0;
+    for (const auto &action : quickActions) {
+        const bool visible = action.roles & activeRoleMask;
+        if (action.button) action.button->setVisible(visible);
 }
 
 void MainWindow::setupLegacyMenu() {
