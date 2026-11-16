@@ -1572,6 +1572,20 @@ void MainWindow::onViewSystemInfo() {
 }
 
 void MainWindow::onViewMyAccount() {
+    QString details = QString("Name: %1\nUsername: %2\nRole: %3")
+        .arg(currentUser.fullName, currentUser.username,
+             QStringList{"Student", "Lecturer", "Administrator", "Registrar", "Residence staff", "Sports coordinator"}[activeRoleIndex]);
+    if (!currentUser.linkedId.isEmpty()) details += QString("\nLinked university ID: %1").arg(currentUser.linkedId);
+    QMessageBox accountBox(QMessageBox::Information, "My account", details, QMessageBox::Close, this);
+    QPushButton *changePassword = accountBox.addButton("Change password", QMessageBox::ActionRole);
+    accountBox.exec();
+    if (accountBox.clickedButton() != changePassword) return;
+    bool ok = false;
+    const QString oldPassword = QInputDialog::getText(this, "Change password", "Current password:", QLineEdit::Password, {}, &ok);
+    if (!ok) return;
+    const QString newPassword = QInputDialog::getText(this, "Change password", "New password (at least 10 characters):", QLineEdit::Password, {}, &ok);
+    if (!ok) return;
+    const QString confirmation = QInputDialog::getText(this, "Confirm password", "Repeat the new password:", QLineEdit::Password, {}, &ok);
 void MainWindow::onBackToMenu() {
     stackedWidget->setCurrentWidget(welcomeWidget);
 }
