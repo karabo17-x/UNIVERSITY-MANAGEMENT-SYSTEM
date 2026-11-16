@@ -16,3 +16,17 @@ constexpr int SaltLength = 16;
 constexpr int HashLength = 32;
 constexpr int Pbkdf2Iterations = 310000;
 
+bool derivePasswordHash(const QString &password, const QByteArray &salt, QByteArray *hash) {
+    const QByteArray passwordUtf8 = password.toUtf8();
+    QByteArray result(HashLength, Qt::Uninitialized);
+    if (PKCS5_PBKDF2_HMAC(passwordUtf8.constData(), passwordUtf8.size(),
+                          reinterpret_cast<const unsigned char *>(salt.constData()), salt.size(),
+                          Pbkdf2Iterations, EVP_sha256(), HashLength,
+                          reinterpret_cast<unsigned char *>(result.data())) != 1) {
+        return false;
+    }
+    *hash = result;
+    return true;
+}
+
+QString normalizedUsername(const QString &username) {
