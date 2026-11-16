@@ -1364,10 +1364,6 @@ void MainWindow::onRemoveSportAffiliation() {
         if (!ok || studentId.isEmpty()) return;
     }
     
-    bool ok;
-    QString studentId = QInputDialog::getItem(this, "Remove Sport", "Select Student:", studentIds, 0, false, &ok);
-    if (!ok || studentId.isEmpty()) return;
-    
     auto sportIds = sportsAffiliation->getStudentAffiliations(studentId.toStdString());
     if (sportIds.empty()) {
         QMessageBox::information(this, "Remove Sport", "Student not affiliated with any sport.");
@@ -1387,7 +1383,15 @@ void MainWindow::onRemoveSportAffiliation() {
 }
 
 void MainWindow::onInitializeExamSchedule() {
-    QMessageBox::information(this, "Initialize Exam Schedule", "Exam schedule initialization feature available.");
+    QStringList departments;
+    for (auto *department : admin->getDepartments()) departments.append(QString::fromStdString(department->getDepartmentName()));
+    bool ok = false;
+    const QString department = QInputDialog::getItem(this, "Initialize exam schedule", "Department:", departments, 0, false, &ok);
+    if (!ok || department.isEmpty()) return;
+    const QString semester = QInputDialog::getText(this, "Initialize exam schedule", "Semester (for example, Semester 1 2026):", QLineEdit::Normal, {}, &ok).trimmed();
+    if (!ok || semester.isEmpty()) return;
+    const std::string key = department.toStdString();
+    if (examSchedules.count(key)) {
 }
 
 void MainWindow::onCreateExamSection() {
