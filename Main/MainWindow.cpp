@@ -1540,9 +1540,20 @@ void MainWindow::onViewExamSectionDetails() {
         QString("Room: %1 | Enrollment: %2/%3").arg(QString::fromStdString(section->getRoomNumber())).arg(section->getEnrolledCount()).arg(section->getCapacity()),
         "Exams:"};
     for (auto *exam : section->getExams()) details.append(QString("%1 — %2 | %3 %4 | %5 minutes | %6 marks | %7")
+        .arg(QString::fromStdString(exam->getExamType()), QString::fromStdString(exam->getExamName()),
+             QString::fromStdString(exam->getDate()), QString::fromStdString(exam->getTime()))
+        .arg(exam->getDuration()).arg(exam->getMaxMarks()).arg(QString::fromStdString(exam->getVenue())));
+    details.append("Enrolled students:");
+    for (const auto &id : section->getEnrolledStudents()) {
+        Student *student = admin->searchStudent(id);
+        details.append(student ? QString("%1 — %2").arg(QString::fromStdString(id), QString::fromStdString(student->getName())) : QString::fromStdString(id));
+    }
+    GenericListDialog dialog(QString("Exam section %1").arg(sectionId), details, this);
+    dialog.exec();
 }
 
 void MainWindow::onViewSystemInfo() {
+    if (activeRoleIndex != AdministratorRole) return;
     QString info = QString(
         "University Management System\n"
         "Version 2.0 - Qt6 GUI Edition\n\n"
@@ -1555,11 +1566,12 @@ void MainWindow::onViewSystemInfo() {
           QString::fromStdString(academicAdmin->getAdminName()), 
           QString::number(departments.size()), 
           QString::number(admin->getTotalRegistrations()),
-          QString::number(faculty.size()));
+          QString::number(admin->getFacultyList().size()));
     
     QMessageBox::information(this, "System Information", info);
 }
 
+void MainWindow::onViewMyAccount() {
 void MainWindow::onBackToMenu() {
     stackedWidget->setCurrentWidget(welcomeWidget);
 }
