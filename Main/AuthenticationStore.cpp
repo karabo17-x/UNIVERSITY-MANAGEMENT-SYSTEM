@@ -112,3 +112,17 @@ QStringList AuthenticationStore::accountSummaries() const {
         if (!value(3).isEmpty()) line += QString(" · ID %1").arg(value(3));
         accounts.append(line);
     }
+    sqlite3_finalize(statement);
+    return accounts;
+}
+
+bool AuthenticationStore::createAccount(const QString &username, const QString &password,
+                                        const QString &fullName, const QString &role,
+                                        const QString &linkedId, QString *error) {
+    if (!database) { setError(error, errorMessage); return false; }
+    const QString cleanUsername = normalizedUsername(username);
+    const QString cleanName = fullName.trimmed();
+    static const QRegularExpression usernamePattern("^[a-z0-9._-]{3,64}$");
+    static const QStringList acceptedRoles = {"student", "lecturer", "administrator", "registrar", "residence", "sports"};
+    if (!usernamePattern.match(cleanUsername).hasMatch()) {
+        setError(error, "Username must be 3–64 characters and use letters, numbers, dots, underscores or hyphens.");
