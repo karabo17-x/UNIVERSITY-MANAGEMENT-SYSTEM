@@ -429,7 +429,21 @@ void MainWindow::setupMainMenu() {
     dashboardGrid->setRowStretch(1, 1);
     contentLayout->addLayout(dashboardGrid, 1);
 
+    rootLayout->addWidget(sidebarScroll);
+    auto *contentScroll = new QScrollArea();
+    contentScroll->setWidgetResizable(true);
+    contentScroll->setFrameShape(QFrame::NoFrame);
+    contentScroll->setWidget(content);
+    rootLayout->addWidget(contentScroll, 1);
     stackedWidget->addWidget(menuWidget);
+    updateResponsiveLayout();
+}
+
+void MainWindow::resizeEvent(QResizeEvent *event) {
+    QMainWindow::resizeEvent(event);
+    updateResponsiveLayout();
+}
+
 }
 
 void MainWindow::setupLegacyMenu() {
