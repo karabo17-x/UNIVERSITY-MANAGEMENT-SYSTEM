@@ -1451,10 +1451,22 @@ void MainWindow::onAddExam() {
     if (!ok) return;
     if (!QTime::fromString(time, "HH:mm").isValid()) { QMessageBox::warning(this, "Invalid time", "Enter a valid time as HH:MM."); return; }
     const int duration = QInputDialog::getInt(this, "Add exam", "Duration in minutes:", 120, 1, 1440, 1, &ok);
+    if (!ok) return;
+    const int marks = QInputDialog::getInt(this, "Add exam", "Maximum marks:", 100, 1, 10000, 1, &ok);
+    if (!ok) return;
+    const QString venue = QInputDialog::getText(this, "Add exam", "Venue:", QLineEdit::Normal, QString::fromStdString(section->getRoomNumber()), &ok).trimmed();
+    if (!ok || venue.isEmpty()) return;
+    Exam *exam = nullptr;
+    if (type == "Midterm") exam = new Midterm(id.toStdString(), name.toStdString(), department.toStdString(), date.toStdString(), time.toStdString(), duration, marks, venue.toStdString());
+    else if (type == "Final") exam = new Final(id.toStdString(), name.toStdString(), department.toStdString(), date.toStdString(), time.toStdString(), duration, marks, venue.toStdString());
+    else if (type == "Quiz") exam = new Quiz(id.toStdString(), name.toStdString(), department.toStdString(), date.toStdString(), time.toStdString(), duration, marks, venue.toStdString());
+    else exam = new Assignment(id.toStdString(), name.toStdString(), department.toStdString(), date.toStdString(), time.toStdString(), duration, marks, venue.toStdString());
+    section->addExam(exam);
+    QMessageBox::information(this, "Exam added", QString("%1 was added to section %2.").arg(name, sectionId));
 }
 
 void MainWindow::onEnrollExamSection() {
-    QMessageBox::information(this, "Enroll in Exam", "Exam enrollment feature available.");
+    QStringList available;
 }
 
 void MainWindow::onViewExamSchedule() {
