@@ -315,6 +315,8 @@ void MainWindow::setupMainMenu() {
     accent->setFixedSize(180, 4);
     contentLayout->addWidget(accent);
     dashboardSubtitleLabel = new QLabel("Your registration, campus life and academic information.");
+    dashboardSubtitleLabel->setObjectName("dashboardSubtitle");
+    contentLayout->addWidget(dashboardSubtitleLabel);
     contentLayout->addSpacing(4);
 
     auto createCard = [](const QString &title) {
@@ -329,18 +331,20 @@ void MainWindow::setupMainMenu() {
         return card;
     };
 
-    auto *dashboardGrid = new QGridLayout();
+    dashboardGrid = new QGridLayout();
     dashboardGrid->setHorizontalSpacing(18);
     dashboardGrid->setVerticalSpacing(18);
 
-    auto *calendarCard = createCard("Calendar");
+    calendarCard = createCard("Calendar");
     auto *calendarLayout = qobject_cast<QVBoxLayout *>(calendarCard->layout());
     auto *calendarHeader = new QHBoxLayout();
     auto *dateLabel = new QLabel(QDate::currentDate().toString("dddd, d MMMM yyyy"));
     dateLabel->setObjectName("calendarDate");
     auto *viewAll = new QPushButton("View all");
     viewAll->setObjectName("linkButton");
-    connect(viewAll, &QPushButton::clicked, this, &MainWindow::onViewExamSchedule);
+    connect(viewAll, &QPushButton::clicked, this, [this] {
+        if (activeRoleMask & roleMaskForLabel("My Exams")) onViewExamSchedule();
+    });
     calendarHeader->addWidget(dateLabel);
     calendarHeader->addStretch();
     calendarHeader->addWidget(viewAll);
@@ -365,7 +369,7 @@ void MainWindow::setupMainMenu() {
     calendarLayout->addWidget(legend);
     dashboardGrid->addWidget(calendarCard, 0, 0, 2, 1);
 
-    auto *updatesCard = createCard("Updates");
+    updatesCard = createCard("Updates");
     auto *updatesLayout = qobject_cast<QVBoxLayout *>(updatesCard->layout());
     auto *updatesTabs = new QTabWidget();
     updatesTabs->setObjectName("updatesTabs");
@@ -384,7 +388,7 @@ void MainWindow::setupMainMenu() {
     updatesLayout->addWidget(updatesTabs, 1);
     dashboardGrid->addWidget(updatesCard, 0, 1);
 
-    auto *actionsCard = createCard("Quick actions");
+    actionsCard = createCard("Quick actions");
     auto *actionsLayout = qobject_cast<QVBoxLayout *>(actionsCard->layout());
     auto *actionGrid = new QGridLayout();
     actionGrid->setSpacing(10);
