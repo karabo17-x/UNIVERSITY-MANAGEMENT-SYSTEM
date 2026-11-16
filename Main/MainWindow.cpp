@@ -390,13 +390,13 @@ void MainWindow::setupMainMenu() {
 
     actionsCard = createCard("Quick actions");
     auto *actionsLayout = qobject_cast<QVBoxLayout *>(actionsCard->layout());
-    auto *actionGrid = new QGridLayout();
-    actionGrid->setSpacing(10);
-    const std::vector<std::pair<QString, std::function<void()>>> actions = {
-        {"Register student", [this] { onRegisterStudent(); }},
-        {"View students", [this] { onViewStudents(); }},
-        {"Assign marks", [this] { onAssignMarks(); }},
-        {"View residence", [this] { onViewResidenceOccupancy(); }}
+    quickActionGrid = new QGridLayout();
+    quickActionGrid->setSpacing(10);
+    const std::vector<PortalAction> actions = {
+        {"Register", 1 | (1 << RegistrarRole) | (1 << AdministratorRole), [this] { onRegisterStudent(); }},
+        {"Student directory", (1 << RegistrarRole) | (1 << AdministratorRole), [this] { onViewStudents(); }},
+        {"Assign marks", (1 << LecturerRole) | (1 << AdministratorRole), [this] { onAssignMarks(); }},
+        {"View marks", (1 << LecturerRole) | (1 << AdministratorRole), [this] { onViewMarks(); }},
     };
     for (int i = 0; i < static_cast<int>(actions.size()); ++i) {
         auto *button = new QPushButton(actions[i].first);
