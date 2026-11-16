@@ -223,3 +223,17 @@ bool AuthenticationStore::changePassword(const QString &username, const QString 
     QByteArray hash;
     if (!derivePasswordHash(newPassword, salt, &hash)) {
         setError(error, "Could not secure the account password.");
+        return false;
+    }
+    const QByteArray saltHex = salt.toHex();
+    const QByteArray hashHex = hash.toHex();
+    const QByteArray normalized = normalizedUsername(username).toUtf8();
+    sqlite3_stmt *statement = nullptr;
+    if (sqlite3_prepare_v2(database, "UPDATE accounts SET password_salt=?,password_hash=? WHERE username=?", -1, &statement, nullptr) != SQLITE_OK) {
+        setError(error, QString::fromUtf8(sqlite3_errmsg(database)));
+        return false;
+    }
+    sqlite3_bind_text(statement, 1, saltHex.constData(), saltHex.size(), SQLITE_TRANSIENT);
+    sqlite3_bind_text(statement, 2, hashHex.constData(), hashHex.size(), SQLITE_TRANSIENT);
+    sqlite3_bind_text(statement, 3, normalized.constData(), normalized.size(), SQLITE_TRANSIENT);
+    const int result = sqlite3_step(statement);
