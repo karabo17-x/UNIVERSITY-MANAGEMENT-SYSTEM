@@ -1170,17 +1170,24 @@ void MainWindow::onAssignResidence() {
         int roomNumber = roomNo.toInt(&isInt);
         if (isInt && roomNumber > 0 && roomNumber <= hostelA->getTotalRooms()) {
             if (hostelA->getRoomOccupant(roomNumber)) {
+                QMessageBox::warning(this, "Room unavailable", "That room is already occupied.");
+                return;
+            }
             hostelA->assignRoom(roomNumber, student);
             QMessageBox::information(this, "Success", "Room assigned successfully.");
         } else {
-            QMessageBox::warning(this, "Invalid Input", "Please enter a valid room number.");
+            QMessageBox::warning(this, "Invalid Input", QString("Enter a room number from 1 to %1.").arg(hostelA->getTotalRooms()));
         }
     }
 }
 
 void MainWindow::onViewResidenceOccupancy() {
-    QMessageBox::information(this, "Residence Occupancy", "Viewing occupancy status...");
-    hostelA->displayRoomOccupancy();
+    if (activeRoleIndex == StudentRole) {
+        if (currentUser.linkedId.isEmpty()) {
+            QMessageBox::information(this, "My residence", "Your account is not linked to a student record yet.");
+            return;
+        }
+        Student *student = admin->searchStudent(currentUser.linkedId.toStdString());
 }
 
 void MainWindow::onViewSports() {
