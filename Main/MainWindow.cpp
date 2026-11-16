@@ -472,6 +472,20 @@ void MainWindow::updateResponsiveLayout() {
 
 int MainWindow::roleMaskForLabel(const QString &label) const {
     const int student = 1 << StudentRole;
+    const int lecturer = 1 << LecturerRole;
+    const int administrator = 1 << AdministratorRole;
+    const int registrar = 1 << RegistrarRole;
+    const int residence = 1 << ResidenceRole;
+    const int sports = 1 << SportsRole;
+    const int everyone = student | lecturer | administrator | registrar | residence | sports;
+
+    if (label == "Dashboard" || label == "Sign out") return everyone;
+    if (label == "Registration") return registrar | administrator;
+    if (label == "Student Directory" || label == "Search students" || label == "Deregister student") return registrar | administrator;
+    if (label == "Academics" || label == "View marks" || label == "Faculty by department" ||
+        label == "Course mapping" || label == "Department faculty" || label == "Faculty" || label == "Departments")
+        return lecturer | administrator;
+    if (label == "My Residences") return student | residence | administrator;
 }
 
 void MainWindow::setupLegacyMenu() {
