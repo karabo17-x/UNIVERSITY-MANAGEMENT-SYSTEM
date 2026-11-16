@@ -18,6 +18,8 @@
 #include <QResizeEvent>
 #include <QRegularExpression>
 #include <QTime>
+#include <QStandardPaths>
+#include <QDir>
 #include <functional>
 
 MainWindow::MainWindow(QWidget *parent)
@@ -27,7 +29,7 @@ MainWindow::MainWindow(QWidget *parent)
     setWindowTitle("University Management System");
     setWindowIcon(style()->standardIcon(QStyle::SP_FileDialogDetailedView));
     setGeometry(80, 60, 1240, 820);
-    setMinimumSize(980, 680);
+    setMinimumSize(640, 480);
     
     // Initialize business logic
     initializeSystemData();
@@ -39,6 +41,8 @@ MainWindow::MainWindow(QWidget *parent)
     // Setup screens
     setupWelcomeScreen();
     setupMainMenu();
+    const QString accountDirectory = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+    authenticationStore = new AuthenticationStore(QDir(accountDirectory).filePath("university_accounts.sqlite"));
     
     // Apply stylesheet
     applyStylesheet();
@@ -59,6 +63,14 @@ MainWindow::~MainWindow() {
     if (academicAdmin) delete academicAdmin;
     if (hostelA) delete hostelA;
     if (sportsAffiliation) delete sportsAffiliation;
+    for (auto &schedule : examSchedules) delete schedule.second;
+    delete authenticationStore;
+}
+
+bool MainWindow::authenticateSession() {
+    AuthenticatedUser user;
+    if (!AuthenticationDialog::run(authenticationStore, &user, this)) return false;
+    currentUser = user;
 }
 
 void MainWindow::initializeSystemData() {
