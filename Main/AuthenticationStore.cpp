@@ -99,3 +99,16 @@ int AuthenticationStore::accountCount() const {
 
 QStringList AuthenticationStore::accountSummaries() const {
     QStringList accounts;
+    if (!database) return accounts;
+    sqlite3_stmt *statement = nullptr;
+    const char *sql = "SELECT username,full_name,role,linked_id FROM accounts ORDER BY role,full_name";
+    if (sqlite3_prepare_v2(database, sql, -1, &statement, nullptr) != SQLITE_OK) return accounts;
+    while (sqlite3_step(statement) == SQLITE_ROW) {
+        const auto value = [statement](int column) {
+            const auto *text = sqlite3_column_text(statement, column);
+            return QString::fromUtf8(reinterpret_cast<const char *>(text ? text : reinterpret_cast<const unsigned char *>("")));
+        };
+        QString line = QString("%1 · %2 · %3").arg(value(1), value(0), value(2));
+        if (!value(3).isEmpty()) line += QString(" · ID %1").arg(value(3));
+        accounts.append(line);
+    }
