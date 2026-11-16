@@ -956,6 +956,20 @@ void MainWindow::onAddFaculty() {
     if (!ok || id.isEmpty()) return;
     const QString employeeId = QInputDialog::getText(this, "Add faculty", "Employee ID:", QLineEdit::Normal, {}, &ok).trimmed();
     if (!ok || employeeId.isEmpty()) return;
+    for (auto *member : admin->getFacultyList()) {
+        if (QString::fromStdString(member->getEmployeeId()) == employeeId) {
+            QMessageBox::warning(this, "Duplicate employee ID", "A faculty member with this employee ID already exists.");
+            return;
+        }
+    }
+    const QString name = QInputDialog::getText(this, "Add faculty", "Full name:", QLineEdit::Normal, {}, &ok).trimmed();
+    if (!ok || name.isEmpty()) return;
+    const QString email = QInputDialog::getText(this, "Add faculty", "Email address:", QLineEdit::Normal, {}, &ok).trimmed();
+    if (!ok || email.isEmpty() || !email.contains('@') || !email.contains('.')) {
+        if (ok) QMessageBox::warning(this, "Invalid email", "Enter a valid email address.");
+        return;
+    }
+    const QString phone = QInputDialog::getText(this, "Add faculty", "Phone number:", QLineEdit::Normal, {}, &ok).trimmed();
 }
 
 void MainWindow::onViewFaculty() {
