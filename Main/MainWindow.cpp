@@ -1349,7 +1349,19 @@ void MainWindow::onRemoveSportAffiliation() {
         return;
     }
     
-        studentIds.append(QString::fromStdString(student->getId()));
+    bool ok = false;
+    QString studentId;
+    if (activeRoleIndex == StudentRole) {
+        studentId = currentUser.linkedId;
+        if (studentId.isEmpty() || !admin->searchStudent(studentId.toStdString())) {
+            QMessageBox::warning(this, "Student account", "Your account must be linked to an active student record.");
+            return;
+        }
+    } else {
+        QStringList studentIds;
+        for (auto student : students) studentIds.append(QString::fromStdString(student->getId()));
+        studentId = QInputDialog::getItem(this, "Remove Sport", "Select Student:", studentIds, 0, false, &ok);
+        if (!ok || studentId.isEmpty()) return;
     }
     
     bool ok;
