@@ -1188,6 +1188,20 @@ void MainWindow::onViewResidenceOccupancy() {
             return;
         }
         Student *student = admin->searchStudent(currentUser.linkedId.toStdString());
+        const QString assignment = student && !student->getResidenceBlock().empty()
+            ? QString::fromStdString(student->getResidenceBlock()) : "No residence room is assigned to your account.";
+        QMessageBox::information(this, "My residence", assignment);
+        return;
+    }
+    QStringList rooms;
+    for (int room = 1; room <= hostelA->getTotalRooms(); ++room) {
+        Student *occupant = hostelA->getRoomOccupant(room);
+        rooms.append(occupant
+            ? QString("Room %1 — %2 (%3)").arg(room).arg(QString::fromStdString(occupant->getName()), QString::fromStdString(occupant->getId()))
+            : QString("Room %1 — Available").arg(room));
+    }
+    GenericListDialog dialog(QString("%1 · %2/%3 occupied")
+        .arg(QString::fromStdString(hostelA->getResidenceName()))
 }
 
 void MainWindow::onViewSports() {
