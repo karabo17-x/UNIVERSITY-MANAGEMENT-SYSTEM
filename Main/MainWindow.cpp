@@ -1627,6 +1627,20 @@ void MainWindow::onManageAccounts() {
         if (!found) {
             QMessageBox::warning(this, "University record not found", role == "student"
                 ? "Register the student before creating this account."
+                : "Add the lecturer before creating this account.");
+            return;
+        }
+    }
+    const QString password = QInputDialog::getText(this, "Set temporary password", "Password (at least 10 characters):", QLineEdit::Password, {}, &ok);
+    if (!ok) return;
+    const QString confirmation = QInputDialog::getText(this, "Confirm password", "Repeat the password:", QLineEdit::Password, {}, &ok);
+    if (!ok) return;
+    if (password != confirmation) {
+        QMessageBox::warning(this, "Password mismatch", "The passwords do not match.");
+        return;
+    }
+    QString error;
+    if (!authenticationStore->createAccount(username, password, fullName, role, linkedId, &error)) {
 void MainWindow::onBackToMenu() {
     stackedWidget->setCurrentWidget(welcomeWidget);
 }
