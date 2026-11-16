@@ -191,6 +191,10 @@ void MainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, 
         case 25: _t->onViewExamSchedule(); break;
         case 26: _t->onViewExamSectionDetails(); break;
         case 27: _t->onViewSystemInfo(); break;
+        case 28: _t->onViewMyAccount(); break;
+        case 29: _t->onManageAccounts(); break;
+        case 30: _t->onExit(); break;
+        case 31: _t->onBackToMenu(); break;
         default: ;
         }
     }
@@ -216,14 +220,14 @@ int MainWindow::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 30)
+        if (_id < 32)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 30;
+        _id -= 32;
     }
     if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 30)
+        if (_id < 32)
             *reinterpret_cast<QMetaType *>(_a[0]) = QMetaType();
-        _id -= 30;
+        _id -= 32;
     }
     return _id;
 }

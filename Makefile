@@ -5,7 +5,7 @@ CXXFLAGS = -std=c++17 -Wall -Wextra -fPIC
 QT_PATH = /usr/include/x86_64-linux-gnu/qt6
 QT_INCLUDES = -I$(QT_PATH) -I$(QT_PATH)/QtCore -I$(QT_PATH)/QtGui -I$(QT_PATH)/QtWidgets -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++
 QT_FLAGS = $(QT_INCLUDES) -fPIC
-QT_LIBS = -lQt6Core -lQt6Gui -lQt6Widgets
+QT_LIBS = -lQt6Core -lQt6Gui -lQt6Widgets -lsqlite3 -lcrypto
 CXXFLAGS += $(QT_FLAGS)
 TARGET = university_system
 
