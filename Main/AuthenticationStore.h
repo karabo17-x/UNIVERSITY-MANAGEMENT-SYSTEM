@@ -31,3 +31,10 @@ public:
                       AuthenticatedUser *user, QString *error = nullptr) const;
     bool changePassword(const QString &username, const QString &currentPassword,
                         const QString &newPassword, QString *error = nullptr);
+
+private:
+    sqlite3 *database = nullptr;
+    QString errorMessage;
+};
+
+#endif

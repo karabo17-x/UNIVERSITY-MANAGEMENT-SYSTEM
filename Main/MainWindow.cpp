@@ -1,4 +1,5 @@
 #include "MainWindow.h"
+#include "AuthenticationDialog.h"
 #include <QApplication>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
@@ -14,6 +15,9 @@
 #include <QDate>
 #include <QFrame>
 #include <QTabWidget>
+#include <QResizeEvent>
+#include <QRegularExpression>
+#include <QTime>
 #include <functional>
 
 MainWindow::MainWindow(QWidget *parent)

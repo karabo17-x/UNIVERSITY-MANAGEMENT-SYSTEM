@@ -7,7 +7,8 @@ GenericListDialog::GenericListDialog(const QString& title, const QStringList& it
     : QDialog(parent) {
     setWindowTitle(title);
     setModal(true);
-    setGeometry(200, 200, 600, 400);
+    resize(600, 400);
+    setMinimumSize(320, 220);
     
     QVBoxLayout* layout = new QVBoxLayout(this);
     
