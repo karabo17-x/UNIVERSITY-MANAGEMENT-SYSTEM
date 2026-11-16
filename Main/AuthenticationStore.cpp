@@ -71,3 +71,17 @@ AuthenticationStore::AuthenticationStore(const QString &databasePath) {
         database = nullptr;
         return;
     }
+    QFile databaseFile(databasePath);
+    if (databaseFile.exists()) databaseFile.setPermissions(QFileDevice::ReadOwner | QFileDevice::WriteOwner);
+}
+
+AuthenticationStore::~AuthenticationStore() {
+    if (database) sqlite3_close(database);
+}
+
+bool AuthenticationStore::isReady() const {
+    return database != nullptr;
+}
+
+QString AuthenticationStore::lastError() const {
+    return errorMessage;
