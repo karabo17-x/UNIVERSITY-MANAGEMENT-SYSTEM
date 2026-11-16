@@ -1269,6 +1269,16 @@ void MainWindow::onViewStudentSports() {
             QMessageBox::information(this, "My sports", "Your account is not linked to a student record yet.");
             return;
         }
+        QStringList sports;
+        for (const auto &sportId : sportsAffiliation->getStudentAffiliations(currentUser.linkedId.toStdString())) {
+            Sports *sport = sportsAffiliation->getSport(sportId);
+            if (sport) sports.append(QString::fromStdString(sport->getSportName()));
+        }
+        if (sports.isEmpty()) sports.append("You are not affiliated with any campus sports yet.");
+        GenericListDialog dialog("My sports", sports, this);
+        dialog.exec();
+        return;
+    }
     auto students = admin->getRegisteredStudents();
     if (students.empty()) {
         QMessageBox::information(this, "Student Sports", "No students registered.");
@@ -1316,8 +1326,8 @@ void MainWindow::onViewSportParticipants() {
     bool ok;
     QString sportId = QInputDialog::getItem(this, "Sport Participants", "Select Sport:", sportIds, 0, false, &ok);
     if (ok && !sportId.isEmpty()) {
-        sportsAffiliation->displaySportParticipants(sportId.toStdString());
-        QMessageBox::information(this, "Sport Participants", "Participant list displayed in console.");
+        Sports *sport = sportsAffiliation->getSport(sportId.toStdString());
+        QStringList participants;
     }
 }
 
