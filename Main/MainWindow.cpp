@@ -12,6 +12,8 @@
 #include <QStyleFactory>
 #include <QMessageBox>
 #include <QInputDialog>
+#include <QDialogButtonBox>
+#include <QFormLayout>
 #include <QDate>
 #include <QFrame>
 #include <QTabWidget>
@@ -69,7 +71,7 @@ MainWindow::~MainWindow() {
 
 bool MainWindow::authenticateSession() {
     AuthenticatedUser user;
-    if (!AuthenticationDialog::run(authenticationStore, &user, this)) return false;
+    if (!AuthenticationDialog::run(authenticationStore, &user, admin, this)) return false;
     currentUser = user;
     activeRoleIndex = roleIndexForCode(user.role);
     activeRoleMask = 1 << activeRoleIndex;
@@ -1606,45 +1608,96 @@ void MainWindow::onManageAccounts() {
     QPushButton *createAccount = accountList.addButton("Create account", QMessageBox::ActionRole);
     accountList.exec();
     if (accountList.clickedButton() != createAccount) return;
-    bool ok = false;
-    const QString username = QInputDialog::getText(this, "Create university account", "Username:", QLineEdit::Normal, {}, &ok).trimmed();
-    if (!ok) return;
-    const QString fullName = QInputDialog::getText(this, "Create university account", "Full name:", QLineEdit::Normal, {}, &ok).trimmed();
-    if (!ok) return;
-    const QStringList roleLabels = {"Student", "Lecturer", "Administrator", "Registrar", "Residence staff", "Sports coordinator"};
-    const QString roleLabel = QInputDialog::getItem(this, "Create university account", "Role:", roleLabels, 0, false, &ok);
-    if (!ok || roleLabel.isEmpty()) return;
-    const QStringList roleCodes = {"student", "lecturer", "administrator", "registrar", "residence", "sports"};
-    const QString role = roleCodes[roleLabels.indexOf(roleLabel)];
-    QString linkedId;
-    if (role == "student" || role == "lecturer") {
-        linkedId = QInputDialog::getText(this, "Link university record", role == "student" ? "Student ID:" : "Employee ID:", QLineEdit::Normal, {}, &ok).trimmed();
-        if (!ok || linkedId.isEmpty()) return;
-        bool found = role == "student" ? admin->searchStudent(linkedId.toStdString()) != nullptr : false;
-        if (role == "lecturer") {
-            for (auto *member : admin->getFacultyList()) if (QString::fromStdString(member->getEmployeeId()) == linkedId) found = true;
-        }
-        if (!found) {
-            QMessageBox::warning(this, "University record not found", role == "student"
-                ? "Register the student before creating this account."
-                : "Add the lecturer before creating this account.");
+    QDialog dialog(this);
+    dialog.setWindowTitle("Create account");
+    dialog.setMinimumWidth(440);
+    dialog.setStyleSheet(R"(
+        QDialog { background: #f5f7fb; }
+        QLabel { color: #303744; }
+        QLineEdit, QComboBox { color: #202632; background: #ffffff; border: 1px solid #b9c2ce; border-radius: 5px; padding: 6px 9px; }
+        QPushButton { color: #253246; background: #ffffff; border: 1px solid #aeb8c5; border-radius: 5px; padding: 7px 14px; min-width: 94px; min-height: 34px; font-weight: 600; }
+        QPushButton:hover { background: #eaf1f8; border-color: #245f98; }
+        QPushButton:default { color: #ffffff; background: #245f98; border-color: #245f98; }
+    )");
+    auto *layout = new QVBoxLayout(&dialog);
+    layout->setContentsMargins(24, 22, 24, 20);
+    layout->setSpacing(14);
+    auto *form = new QFormLayout();
+    form->setSpacing(10);
+    auto *username = new QLineEdit();
+    auto *fullName = new QLineEdit();
+    auto *role = new QComboBox();
+    role->addItem("Student", "student");
+    role->addItem("Lecturer", "lecturer");
+    role->addItem("Administrator", "administrator");
+    role->addItem("Registrar", "registrar");
+    role->addItem("Residence staff", "residence");
+    role->addItem("Sports coordinator", "sports");
+    auto *linkedId = new QLineEdit();
+    linkedId->setPlaceholderText("Student ID or employee ID");
+    auto *password = new QLineEdit();
+    password->setEchoMode(QLineEdit::Password);
+    auto *confirmation = new QLineEdit();
+    confirmation->setEchoMode(QLineEdit::Password);
+    for (QLineEdit *field : {username, fullName, linkedId, password, confirmation}) field->setMinimumHeight(34);
+    form->addRow("Username", username);
+    form->addRow("Full name", fullName);
+    form->addRow("Role", role);
+    form->addRow("Linked record", linkedId);
+    form->addRow("Password", password);
+    form->addRow("Confirm password", confirmation);
+    QWidget *linkedIdLabel = form->labelForField(linkedId);
+    auto updateLinkedField = [role, linkedId, linkedIdLabel] {
+        const QString code = role->currentData().toString();
+        const bool required = code == "student" || code == "lecturer";
+        linkedId->setVisible(required);
+        if (linkedIdLabel) linkedIdLabel->setVisible(required);
+    };
+    connect(role, QOverload<int>::of(&QComboBox::currentIndexChanged), &dialog, updateLinkedField);
+    updateLinkedField();
+    layout->addLayout(form);
+    auto *status = new QLabel();
+    status->setWordWrap(true);
+    status->setStyleSheet("color: #b42318;");
+    layout->addWidget(status);
+    auto *buttons = new QDialogButtonBox(QDialogButtonBox::Save | QDialogButtonBox::Cancel);
+    buttons->button(QDialogButtonBox::Save)->setText("Create account");
+    buttons->button(QDialogButtonBox::Save)->setDefault(true);
+    connect(buttons, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
+    connect(buttons, &QDialogButtonBox::accepted, &dialog, [this, &dialog, username, fullName, role, linkedId, password, confirmation, status] {
+        const QString roleCode = role->currentData().toString();
+        const QString universityId = linkedId->text().trimmed();
+        if (password->text() != confirmation->text()) {
+            status->setText("The passwords do not match.");
             return;
         }
-    }
-    const QString password = QInputDialog::getText(this, "Set temporary password", "Password (at least 10 characters):", QLineEdit::Password, {}, &ok);
-    if (!ok) return;
-    const QString confirmation = QInputDialog::getText(this, "Confirm password", "Repeat the password:", QLineEdit::Password, {}, &ok);
-    if (!ok) return;
-    if (password != confirmation) {
-        QMessageBox::warning(this, "Password mismatch", "The passwords do not match.");
-        return;
-    }
-    QString error;
-    if (!authenticationStore->createAccount(username, password, fullName, role, linkedId, &error)) {
-        QMessageBox::warning(this, "Account not created", error);
-        return;
-    }
-    QMessageBox::information(this, "Account created", QString("The %1 account for %2 is ready. Share the temporary password directly with the account holder.").arg(roleLabel, fullName));
+        if ((roleCode == "student" || roleCode == "lecturer") && universityId.isEmpty()) {
+            status->setText("Enter the student ID or employee ID to link this account.");
+            return;
+        }
+        bool recordExists = true;
+        if (roleCode == "student") recordExists = admin->searchStudent(universityId.toStdString()) != nullptr;
+        if (roleCode == "lecturer") {
+            recordExists = false;
+            for (auto *member : admin->getFacultyList())
+                if (QString::fromStdString(member->getEmployeeId()) == universityId) recordExists = true;
+        }
+        if (!recordExists) {
+            status->setText(roleCode == "student" ? "Register the student before creating this account."
+                                                   : "Add the lecturer before creating this account.");
+            return;
+        }
+        QString error;
+        if (!authenticationStore->createAccount(username->text(), password->text(), fullName->text(),
+                                                 roleCode, universityId, &error)) {
+            status->setText(error);
+            return;
+        }
+        dialog.accept();
+    });
+    layout->addWidget(buttons);
+    username->setFocus();
+    dialog.exec();
 }
 
 void MainWindow::onBackToMenu() {
