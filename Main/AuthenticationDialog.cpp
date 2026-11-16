@@ -45,3 +45,17 @@ bool AuthenticationDialog::run(AuthenticationStore *store, AuthenticatedUser *us
 
     auto *form = new QFormLayout();
     form->setSpacing(10);
+    auto *username = new QLineEdit();
+    username->setMinimumHeight(36);
+    auto *fullName = new QLineEdit();
+    fullName->setMinimumHeight(36);
+    auto *password = passwordField(&dialog);
+    form->addRow("Username", username);
+    if (firstRun) form->addRow("Full name", fullName);
+    form->addRow("Password", password);
+    QLineEdit *confirmation = nullptr;
+    if (firstRun) {
+        confirmation = passwordField(&dialog);
+        form->addRow("Confirm password", confirmation);
+    }
+    layout->addLayout(form);
