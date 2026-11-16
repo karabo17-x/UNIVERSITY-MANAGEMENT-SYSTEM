@@ -1246,16 +1246,15 @@ void MainWindow::onAffiliateSport() {
             return;
         }
     } else {
+        QStringList studentIds;
+        for (auto student : students) studentIds.append(QString::fromStdString(student->getId()));
+        studentId = QInputDialog::getItem(this, "Affiliate Sport", "Select Student:", studentIds, 0, false, &ok);
+        if (!ok || studentId.isEmpty()) return;
     }
-    
     QStringList sportIds;
     for (auto sport : sports) {
         sportIds.append(QString::fromStdString(sport->getSportId()));
     }
-    
-    bool ok;
-    QString studentId = QInputDialog::getItem(this, "Affiliate Sport", "Select Student:", studentIds, 0, false, &ok);
-    if (!ok || studentId.isEmpty()) return;
     
     QString sportId = QInputDialog::getItem(this, "Affiliate Sport", "Select Sport:", sportIds, 0, false, &ok);
     if (ok && !sportId.isEmpty()) {
@@ -1265,6 +1264,11 @@ void MainWindow::onAffiliateSport() {
 }
 
 void MainWindow::onViewStudentSports() {
+    if (activeRoleIndex == StudentRole) {
+        if (currentUser.linkedId.isEmpty()) {
+            QMessageBox::information(this, "My sports", "Your account is not linked to a student record yet.");
+            return;
+        }
     auto students = admin->getRegisteredStudents();
     if (students.empty()) {
         QMessageBox::information(this, "Student Sports", "No students registered.");
