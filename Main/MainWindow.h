@@ -106,6 +106,11 @@ private:
     void applyStylesheet();
     void updateResponsiveLayout();
     void applyRoleView();
+    int roleMaskForLabel(const QString &label) const;
+    int roleIndexForCode(const QString &role) const;
+
+protected:
+    void resizeEvent(QResizeEvent *event) override;
 
     // UI Components
     QStackedWidget *stackedWidget;
@@ -113,6 +118,15 @@ private:
     QWidget *menuWidget;
     QLabel *titleLabel;
     QLabel *welcomeLabel;
+    QFrame *sidebarWidget = nullptr;
+    QComboBox *compactNavigation = nullptr;
+    QLabel *sessionLabel = nullptr;
+    QLabel *portalLabel = nullptr;
+    QLabel *dashboardHeadingLabel = nullptr;
+    QLabel *dashboardSubtitleLabel = nullptr;
+    QGridLayout *dashboardGrid = nullptr;
+    QGridLayout *quickActionGrid = nullptr;
+    QWidget *calendarCard = nullptr;
 
     // Business Logic Objects
     Administration *admin;
