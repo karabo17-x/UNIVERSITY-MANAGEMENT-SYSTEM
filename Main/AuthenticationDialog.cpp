@@ -59,3 +59,16 @@ bool AuthenticationDialog::run(AuthenticationStore *store, AuthenticatedUser *us
         form->addRow("Confirm password", confirmation);
     }
     layout->addLayout(form);
+    auto *status = new QLabel();
+    status->setWordWrap(true);
+    status->setStyleSheet("color: #b42318;");
+    layout->addWidget(status);
+
+    auto *buttons = new QDialogButtonBox(firstRun ? QDialogButtonBox::Save | QDialogButtonBox::Cancel
+                                                  : QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+    QPushButton *submit = buttons->button(firstRun ? QDialogButtonBox::Save : QDialogButtonBox::Ok);
+    submit->setText(firstRun ? "Create administrator" : "Sign in");
+    layout->addWidget(buttons);
+
+    AuthenticatedUser authenticated;
+    QObject::connect(buttons, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
