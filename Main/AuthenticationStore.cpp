@@ -182,3 +182,16 @@ bool AuthenticationStore::authenticate(const QString &username, const QString &p
     const QByteArray lookup = normalizedUsername(username).toUtf8();
     sqlite3_bind_text(statement, 1, lookup.constData(), lookup.size(), SQLITE_TRANSIENT);
     if (sqlite3_step(statement) != SQLITE_ROW) {
+        sqlite3_finalize(statement);
+        setError(error, "Username or password is incorrect.");
+        return false;
+    }
+    const auto textColumn = [statement](int column) {
+        const auto *text = sqlite3_column_text(statement, column);
+        return QString::fromUtf8(reinterpret_cast<const char *>(text ? text : reinterpret_cast<const unsigned char *>("")));
+    };
+    const QString storedUsername = textColumn(0);
+    const QString fullName = textColumn(1);
+    const QString role = textColumn(2);
+    const QString linkedId = textColumn(3);
+    const QByteArray salt = QByteArray::fromHex(textColumn(4).toLatin1());
