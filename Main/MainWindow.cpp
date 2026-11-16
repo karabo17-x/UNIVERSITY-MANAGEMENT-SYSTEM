@@ -192,6 +192,7 @@ void MainWindow::setupWelcomeScreen() {
     
     layout->addLayout(buttonLayout);
     layout->addStretch();
+    stackedWidget->addWidget(welcomeWidget);
 }
 
 void MainWindow::setupMainMenu() {
@@ -204,7 +205,13 @@ void MainWindow::setupMainMenu() {
 
     auto *sidebar = new QFrame();
     sidebar->setObjectName("sidebar");
-    sidebar->setFixedWidth(230);
+    auto *sidebarScroll = new QScrollArea();
+    sidebarScroll->setObjectName("sidebarScroll");
+    sidebarScroll->setWidgetResizable(true);
+    sidebarScroll->setFrameShape(QFrame::NoFrame);
+    sidebarScroll->setFixedWidth(230);
+    sidebarScroll->setWidget(sidebar);
+    sidebarWidget = sidebarScroll;
     auto *sidebarLayout = new QVBoxLayout(sidebar);
     sidebarLayout->setContentsMargins(24, 25, 20, 22);
     sidebarLayout->setSpacing(5);
@@ -228,7 +235,10 @@ void MainWindow::setupMainMenu() {
         button->setObjectName(selected ? "navButtonActive" : "navButton");
         button->setCursor(Qt::PointingHandCursor);
         button->setMinimumHeight(38);
-        connect(button, &QPushButton::clicked, this, action);
+        const int allowedRoles = roleMaskForLabel(text);
+        connect(button, &QPushButton::clicked, this, [this, allowedRoles, action] {
+            if (activeRoleMask & allowedRoles) action();
+        });
         sidebarLayout->addWidget(button);
     };
 
