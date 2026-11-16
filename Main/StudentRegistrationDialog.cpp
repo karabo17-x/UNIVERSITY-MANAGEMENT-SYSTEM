@@ -83,6 +83,8 @@ void StudentRegistrationDialog::setupUI() {
     gpaEdit = new QLineEdit("0.0");
     setupLineEdit(gpaEdit);
     auto *gpaValidator = new QDoubleValidator(0.0, 4.0, 2, gpaEdit);
+    gpaValidator->setNotation(QDoubleValidator::StandardNotation);
+    gpaEdit->setValidator(gpaValidator);
     gridLayout->addWidget(gpaEdit, 6, 1);
     
     mainLayout->addLayout(gridLayout);
@@ -132,6 +134,12 @@ bool StudentRegistrationDialog::validateInputs() {
     }
     if (phoneEdit->text().isEmpty()) {
         QMessageBox::warning(this, "Validation Error", "Phone is required.");
+        return false;
+    }
+    bool validGpa = false;
+    const double gpa = gpaEdit->text().toDouble(&validGpa);
+    if (!validGpa || gpa < 0.0 || gpa > 4.0) {
+        QMessageBox::warning(this, "Validation Error", "GPA must be a number between 0.0 and 4.0.");
         return false;
     }
     return true;
