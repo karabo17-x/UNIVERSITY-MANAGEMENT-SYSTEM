@@ -43,3 +43,17 @@ AuthenticationStore::AuthenticationStore(const QString &databasePath) {
     QDir().mkpath(databaseDirectory);
     QFile::setPermissions(databaseDirectory,
         QFileDevice::ReadOwner | QFileDevice::WriteOwner | QFileDevice::ExeOwner);
+    const QByteArray path = QFile::encodeName(databasePath);
+    const int result = sqlite3_open_v2(path.constData(), &database,
+        SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE | SQLITE_OPEN_FULLMUTEX, nullptr);
+    if (result != SQLITE_OK) {
+        errorMessage = database ? QString::fromUtf8(sqlite3_errmsg(database)) : "Could not open the account database.";
+        if (database) sqlite3_close(database);
+        database = nullptr;
+        return;
+    }
+    sqlite3_busy_timeout(database, 5000);
+    const char *schema =
+        "CREATE TABLE IF NOT EXISTS accounts ("
+        " username TEXT PRIMARY KEY COLLATE NOCASE,"
+        " full_name TEXT NOT NULL,"
