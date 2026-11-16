@@ -30,3 +30,16 @@ bool derivePasswordHash(const QString &password, const QByteArray &salt, QByteAr
 }
 
 QString normalizedUsername(const QString &username) {
+    return username.trimmed().toLower();
+}
+
+void setError(QString *error, const QString &message) {
+    if (error) *error = message;
+}
+}
+
+AuthenticationStore::AuthenticationStore(const QString &databasePath) {
+    const QString databaseDirectory = QFileInfo(databasePath).absolutePath();
+    QDir().mkpath(databaseDirectory);
+    QFile::setPermissions(databaseDirectory,
+        QFileDevice::ReadOwner | QFileDevice::WriteOwner | QFileDevice::ExeOwner);
