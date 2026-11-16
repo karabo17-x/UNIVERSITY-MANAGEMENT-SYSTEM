@@ -1467,6 +1467,20 @@ void MainWindow::onAddExam() {
 
 void MainWindow::onEnrollExamSection() {
     QStringList available;
+    for (const auto &entry : examSchedules) if (!entry.second->getExamSections().empty()) available.append(QString::fromStdString(entry.first));
+    if (available.isEmpty()) { QMessageBox::information(this, "Enroll in exam section", "Create a department schedule and section first."); return; }
+    bool ok = false;
+    const QString department = QInputDialog::getItem(this, "Enroll in exam section", "Department:", available, 0, false, &ok);
+    if (!ok || department.isEmpty()) return;
+    ExamSchedule *schedule = examSchedules.at(department.toStdString());
+    QStringList sectionIds;
+    for (auto *section : schedule->getExamSections()) sectionIds.append(QString::fromStdString(section->getSectionId()));
+    const QString sectionId = QInputDialog::getItem(this, "Enroll in exam section", "Section:", sectionIds, 0, false, &ok);
+    if (!ok || sectionId.isEmpty()) return;
+    ExamSection *section = schedule->getExamSectionById(sectionId.toStdString());
+    QString studentId;
+    if (activeRoleIndex == StudentRole) {
+        studentId = currentUser.linkedId;
 }
 
 void MainWindow::onViewExamSchedule() {
