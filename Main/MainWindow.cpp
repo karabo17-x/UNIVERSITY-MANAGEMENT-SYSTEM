@@ -1481,6 +1481,20 @@ void MainWindow::onEnrollExamSection() {
     QString studentId;
     if (activeRoleIndex == StudentRole) {
         studentId = currentUser.linkedId;
+        if (studentId.isEmpty() || !admin->searchStudent(studentId.toStdString())) {
+            QMessageBox::warning(this, "Student account", "Your account must be linked to an active student record before enrolling.");
+            return;
+        }
+    } else {
+        QStringList studentIds;
+        for (auto *student : admin->getRegisteredStudents()) studentIds.append(QString::fromStdString(student->getId()));
+        if (studentIds.isEmpty()) { QMessageBox::information(this, "Enroll in exam section", "Register students before enrolling them."); return; }
+        studentId = QInputDialog::getItem(this, "Enroll in exam section", "Student:", studentIds, 0, false, &ok);
+        if (!ok || studentId.isEmpty()) return;
+    }
+    if (section->isStudentEnrolled(studentId.toStdString())) { QMessageBox::information(this, "Already enrolled", "This student is already in the selected section."); return; }
+    if (section->getEnrolledCount() >= section->getCapacity()) { QMessageBox::warning(this, "Section full", "This exam section has reached capacity."); return; }
+    section->enrollStudent(studentId.toStdString());
 }
 
 void MainWindow::onViewExamSchedule() {
